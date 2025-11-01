@@ -2,6 +2,10 @@
 name = "steelkilt"
 version = "0.1.0"
 edition = "2021"
+authors = ["Tony Bierman <tonybierman@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "A Rust implementation of the Draft 0.4 RPG rule set"
+repository = "https://github.com/tonybierman/steelkilt
 
 [dependencies]
 rand = "0.8"

@@ -1,6 +1,6 @@
 # Steelkilt - Draft RPG Combat System
 
-A Rust implementation of the Draft 0.4 RPG rule set, focusing on the combat system.
+A Rust implementation of the Draft 0.4 RPG rule set.
 
 Based on the "Draft 0.4 RPG Rule Set" by Pitt Murmann (1993-1998), this library provides a reusable combat system for tabletop role-playing games.
 

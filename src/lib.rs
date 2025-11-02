@@ -36,21 +36,32 @@ pub fn d10() -> i32 {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Attributes {
     // Physical
-    pub strength: i32,      // STR
-    pub dexterity: i32,     // DEX
-    pub constitution: i32,  // CON
+    pub strength: i32,     // STR
+    pub dexterity: i32,    // DEX
+    pub constitution: i32, // CON
     // Mental
-    pub reason: i32,        // REA
-    pub intuition: i32,     // INT
-    pub willpower: i32,     // WIL
+    pub reason: i32,    // REA
+    pub intuition: i32, // INT
+    pub willpower: i32, // WIL
     // Interactive
-    pub charisma: i32,      // CHA
-    pub perception: i32,    // PER
-    pub empathy: i32,       // EMP
+    pub charisma: i32,   // CHA
+    pub perception: i32, // PER
+    pub empathy: i32,    // EMP
 }
 
 impl Attributes {
-    pub fn new(str: i32, dex: i32, con: i32, rea: i32, int: i32, wil: i32, cha: i32, per: i32, emp: i32) -> Self {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        str: i32,
+        dex: i32,
+        con: i32,
+        rea: i32,
+        int: i32,
+        wil: i32,
+        cha: i32,
+        per: i32,
+        emp: i32,
+    ) -> Self {
         Self {
             strength: str.clamp(1, 10),
             dexterity: dex.clamp(1, 10),
@@ -86,7 +97,7 @@ pub enum WeaponImpact {
 pub struct Weapon {
     pub name: String,
     pub impact: WeaponImpact,
-    pub damage: i32,  // (impact × 2) + bonus
+    pub damage: i32, // (impact × 2) + bonus
 }
 
 impl Weapon {
@@ -260,7 +271,14 @@ pub struct Character {
 }
 
 impl Character {
-    pub fn new(name: &str, attributes: Attributes, weapon_skill: i32, dodge_skill: i32, weapon: Weapon, armor: Armor) -> Self {
+    pub fn new(
+        name: &str,
+        attributes: Attributes,
+        weapon_skill: i32,
+        dodge_skill: i32,
+        weapon: Weapon,
+        armor: Armor,
+    ) -> Self {
         Self {
             name: name.to_string(),
             attributes,
@@ -331,7 +349,11 @@ pub struct CombatResult {
 }
 
 /// Execute a combat round between two characters
-pub fn combat_round(attacker: &mut Character, defender: &mut Character, defender_action: DefenseAction) -> CombatResult {
+pub fn combat_round(
+    attacker: &mut Character,
+    defender: &mut Character,
+    defender_action: DefenseAction,
+) -> CombatResult {
     let attack_roll = attacker.attack_roll();
     let defense_roll = match defender_action {
         DefenseAction::Parry => defender.parry_roll(),
@@ -345,10 +367,8 @@ pub fn combat_round(attacker: &mut Character, defender: &mut Character, defender
 
     if hit {
         // Calculate damage: attack_roll - defense_roll + strength_bonus + weapon_damage - armor_protection
-        damage = (attack_roll - defense_roll)
-                 + attacker.strength_bonus()
-                 + attacker.weapon.damage
-                 - defender.armor.protection;
+        damage = (attack_roll - defense_roll) + attacker.strength_bonus() + attacker.weapon.damage
+            - defender.armor.protection;
 
         damage = damage.max(0); // No negative damage
 

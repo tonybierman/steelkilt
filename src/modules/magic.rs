@@ -53,9 +53,9 @@ impl fmt::Display for MagicBranch {
 /// Difficulty of learning a branch's lore
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoreDifficulty {
-    Normal,    // 1x cost
-    Hard,      // 2x cost
-    VeryHard,  // 3x cost
+    Normal,   // 1x cost
+    Hard,     // 2x cost
+    VeryHard, // 3x cost
 }
 
 impl LoreDifficulty {
@@ -196,7 +196,9 @@ impl MagicUser {
     /// Learn a new spell
     pub fn learn_spell(&mut self, spell: Spell, initial_level: i32) -> Result<(), MagicError> {
         // Check if we have the lore for this branch
-        let lore = self.lores.get(&spell.branch)
+        let lore = self
+            .lores
+            .get(&spell.branch)
             .ok_or(MagicError::LoreNotKnown(spell.branch))?;
 
         // Check if lore level is high enough
@@ -212,13 +214,16 @@ impl MagicUser {
             skill_level: initial_level,
         };
 
-        self.spells.insert(learned_spell.spell.name.clone(), learned_spell);
+        self.spells
+            .insert(learned_spell.spell.name.clone(), learned_spell);
         Ok(())
     }
 
     /// Attempt to cast a spell
     pub fn cast_spell(&mut self, spell_name: &str, roll: i32) -> Result<CastingResult, MagicError> {
-        let learned_spell = self.spells.get(spell_name)
+        let learned_spell = self
+            .spells
+            .get(spell_name)
             .ok_or_else(|| MagicError::SpellNotKnown(spell_name.to_string()))?;
 
         // Calculate total: skill level + empathy + roll
@@ -315,8 +320,15 @@ impl fmt::Display for MagicError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             MagicError::LoreNotKnown(branch) => write!(f, "Lore not known: {}", branch),
-            MagicError::InsufficientLore { required, available } => {
-                write!(f, "Insufficient lore: need {}, have {}", required, available)
+            MagicError::InsufficientLore {
+                required,
+                available,
+            } => {
+                write!(
+                    f,
+                    "Insufficient lore: need {}, have {}",
+                    required, available
+                )
             }
             MagicError::SpellNotKnown(name) => write!(f, "Spell not known: {}", name),
         }

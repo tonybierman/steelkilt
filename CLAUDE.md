@@ -123,6 +123,41 @@ When adding features:
 3. Test edge cases: wound stacking boundaries, attribute caps (1-10), death conditions
 4. Use deterministic scenarios where possible (avoid relying on random d10 rolls in assertions)
 
+## Continuous Integration
+
+The project uses GitHub Actions for automated testing and quality checks:
+
+### CI Workflow Jobs
+- **Test**: Runs on Linux, macOS, and Windows with multiple feature combinations
+- **Build**: Verifies library, examples, and binaries compile
+- **Examples**: Builds the Bevy example with required system dependencies
+- **Clippy**: Lints code for common mistakes and style issues
+- **Formatting**: Ensures consistent code formatting with rustfmt
+- **Coverage**: Generates code coverage reports (uploaded to Codecov)
+
+### Running CI Checks Locally
+```bash
+# Run all tests
+cargo test --all-features
+
+# Check formatting
+cargo fmt --all -- --check
+
+# Run linter
+cargo clippy --all-features -- -D warnings
+
+# Build everything
+cargo build --all-features
+cargo build --examples
+```
+
+### CI Configuration
+The workflow is defined in `.github/workflows/ci.yml` and runs on:
+- Every push to `main`
+- Every pull request targeting `main`
+
+All checks must pass before merging to main.
+
 ## Bevy Integration Example
 
 The `examples/steelkilt_bevy/` directory contains a separate Cargo workspace demonstrating Bevy game engine integration. It's maintained as a standalone example rather than part of the main library to avoid forcing Bevy as a dependency.

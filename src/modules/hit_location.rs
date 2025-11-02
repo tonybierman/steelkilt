@@ -19,49 +19,41 @@ impl HitLocation {
     pub fn determine(direction: AttackDirection) -> Self {
         let roll = d10();
         match direction {
-            AttackDirection::Front | AttackDirection::Back => {
-                match roll {
-                    1..=2 => HitLocation::LeftLeg,
-                    3..=4 => HitLocation::RightLeg,
-                    5..=6 => HitLocation::Torso,
-                    7 => HitLocation::LeftArm,
-                    8 => HitLocation::RightArm,
-                    9..=10 => HitLocation::Head,
-                    _ => HitLocation::Torso,
-                }
-            }
-            AttackDirection::Left | AttackDirection::Right => {
-                match roll {
-                    1..=2 => HitLocation::LeftLeg,
-                    3..=4 => HitLocation::Torso,
-                    5..=7 => HitLocation::LeftArm,
-                    8 => HitLocation::RightArm,
-                    9..=10 => HitLocation::Head,
-                    _ => HitLocation::Torso,
-                }
-            }
-            AttackDirection::Above => {
-                match roll {
-                    1 => HitLocation::LeftLeg,
-                    2 => HitLocation::RightLeg,
-                    3 => HitLocation::Torso,
-                    4..=5 => HitLocation::LeftArm,
-                    6..=7 => HitLocation::RightArm,
-                    8..=10 => HitLocation::Head,
-                    _ => HitLocation::Torso,
-                }
-            }
-            AttackDirection::Below => {
-                match roll {
-                    1..=2 => HitLocation::LeftLeg,
-                    3..=4 => HitLocation::RightLeg,
-                    5..=7 => HitLocation::Torso,
-                    8 => HitLocation::LeftArm,
-                    9 => HitLocation::RightArm,
-                    10 => HitLocation::Head,
-                    _ => HitLocation::Torso,
-                }
-            }
+            AttackDirection::Front | AttackDirection::Back => match roll {
+                1..=2 => HitLocation::LeftLeg,
+                3..=4 => HitLocation::RightLeg,
+                5..=6 => HitLocation::Torso,
+                7 => HitLocation::LeftArm,
+                8 => HitLocation::RightArm,
+                9..=10 => HitLocation::Head,
+                _ => HitLocation::Torso,
+            },
+            AttackDirection::Left | AttackDirection::Right => match roll {
+                1..=2 => HitLocation::LeftLeg,
+                3..=4 => HitLocation::Torso,
+                5..=7 => HitLocation::LeftArm,
+                8 => HitLocation::RightArm,
+                9..=10 => HitLocation::Head,
+                _ => HitLocation::Torso,
+            },
+            AttackDirection::Above => match roll {
+                1 => HitLocation::LeftLeg,
+                2 => HitLocation::RightLeg,
+                3 => HitLocation::Torso,
+                4..=5 => HitLocation::LeftArm,
+                6..=7 => HitLocation::RightArm,
+                8..=10 => HitLocation::Head,
+                _ => HitLocation::Torso,
+            },
+            AttackDirection::Below => match roll {
+                1..=2 => HitLocation::LeftLeg,
+                3..=4 => HitLocation::RightLeg,
+                5..=7 => HitLocation::Torso,
+                8 => HitLocation::LeftArm,
+                9 => HitLocation::RightArm,
+                10 => HitLocation::Head,
+                _ => HitLocation::Torso,
+            },
         }
     }
 
@@ -84,8 +76,10 @@ impl HitLocation {
     pub fn can_sever(&self) -> bool {
         matches!(
             self,
-            HitLocation::LeftArm | HitLocation::RightArm |
-            HitLocation::LeftLeg | HitLocation::RightLeg
+            HitLocation::LeftArm
+                | HitLocation::RightArm
+                | HitLocation::LeftLeg
+                | HitLocation::RightLeg
         )
     }
 }
@@ -206,9 +200,12 @@ mod tests {
         for _ in 0..100 {
             let loc = HitLocation::determine(AttackDirection::Front);
             match loc {
-                HitLocation::Head | HitLocation::Torso |
-                HitLocation::LeftArm | HitLocation::RightArm |
-                HitLocation::LeftLeg | HitLocation::RightLeg => {},
+                HitLocation::Head
+                | HitLocation::Torso
+                | HitLocation::LeftArm
+                | HitLocation::RightArm
+                | HitLocation::LeftLeg
+                | HitLocation::RightLeg => {}
             }
         }
     }

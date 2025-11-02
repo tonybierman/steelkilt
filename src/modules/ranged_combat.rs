@@ -7,10 +7,10 @@ use std::fmt;
 pub struct RangedWeapon {
     pub name: String,
     pub damage: i32,
-    pub point_blank_range: i32,  // meters
-    pub max_range: i32,           // meters
-    pub preparation_time: i32,    // segments
-    pub rate_of_fire: i32,        // shots per round (usually 1-3)
+    pub point_blank_range: i32, // meters
+    pub max_range: i32,         // meters
+    pub preparation_time: i32,  // segments
+    pub rate_of_fire: i32,      // shots per round (usually 1-3)
 }
 
 impl RangedWeapon {
@@ -108,12 +108,12 @@ impl RangedWeapon {
 /// Target size modifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TargetSize {
-    Tiny,      // -4 (rat, small bird)
-    Small,     // -2 (cat, small dog)
-    Medium,    // 0 (human)
-    Large,     // +2 (horse, car)
-    Huge,      // +4 (dragon, tank)
-    Gigantic,  // +6 (whale, building)
+    Tiny,     // -4 (rat, small bird)
+    Small,    // -2 (cat, small dog)
+    Medium,   // 0 (human)
+    Large,    // +2 (horse, car)
+    Huge,     // +4 (dragon, tank)
+    Gigantic, // +6 (whale, building)
 }
 
 impl TargetSize {
@@ -210,9 +210,9 @@ impl Default for RangedAttackState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Cover {
     None,
-    Partial,    // -2 to hit, 1/2 body exposed
+    Partial,       // -2 to hit, 1/2 body exposed
     ThreeQuarters, // -4 to hit, 1/4 body exposed
-    Full,       // -8 to hit, only small parts visible
+    Full,          // -8 to hit, only small parts visible
 }
 
 impl Cover {
@@ -353,9 +353,9 @@ mod tests {
         state.continue_aiming();
 
         let total = calculate_ranged_modifiers(
-            25,                    // distance
-            TargetSize::Medium,   // size
-            Cover::Partial,       // cover
+            25,                 // distance
+            TargetSize::Medium, // size
+            Cover::Partial,     // cover
             &bow,
             &state,
         );

@@ -1,5 +1,5 @@
-use steelkilt::*;
 use steelkilt::modules::*;
+use steelkilt::*;
 
 fn main() {
     println!("=== DRAFT RPG: WIZARD'S DUEL ===\n");
@@ -32,7 +32,10 @@ fn main() {
         if malachar.magic_user.can_act() {
             malachar_turn(&mut malachar, &mut elara, round);
         } else {
-            println!("{} is incapacitated and cannot act!", malachar.character.name);
+            println!(
+                "{} is incapacitated and cannot act!",
+                malachar.character.name
+            );
         }
 
         println!();
@@ -107,8 +110,8 @@ fn create_elara() -> Combatant {
     let character = Character::new(
         "Elara the Wise",
         attrs,
-        4,  // weapon skill
-        5,  // dodge skill
+        4, // weapon skill
+        5, // dodge skill
         Weapon::dagger(),
         Armor::none(),
     );
@@ -143,7 +146,10 @@ fn create_elara() -> Combatant {
     };
     magic_user.magic.learn_spell(heal, 5).unwrap();
 
-    Combatant { character, magic_user }
+    Combatant {
+        character,
+        magic_user,
+    }
 }
 
 fn create_malachar() -> Combatant {
@@ -151,8 +157,8 @@ fn create_malachar() -> Combatant {
     let character = Character::new(
         "Malachar the Dark",
         attrs,
-        5,  // weapon skill
-        4,  // dodge skill
+        5, // weapon skill
+        4, // dodge skill
         Weapon::dagger(),
         Armor::none(),
     );
@@ -187,7 +193,10 @@ fn create_malachar() -> Combatant {
     };
     magic_user.magic.learn_spell(mind_blast, 4).unwrap();
 
-    Combatant { character, magic_user }
+    Combatant {
+        character,
+        magic_user,
+    }
 }
 
 fn elara_turn(elara: &mut Combatant, malachar: &mut Combatant, round: i32) {
@@ -200,11 +209,10 @@ fn elara_turn(elara: &mut Combatant, malachar: &mut Combatant, round: i32) {
         let roll = d10();
         match elara.magic_user.magic.cast_spell("Healing Touch", roll) {
             Ok(result) => {
-                println!("  → Roll: {} | Total: {} vs target {} | Quality: {}",
-                    roll,
-                    result.total,
-                    result.target,
-                    result.quality);
+                println!(
+                    "  → Roll: {} | Total: {} vs target {} | Quality: {}",
+                    roll, result.total, result.target, result.quality
+                );
                 if result.success {
                     // Heal based on quality
                     if elara.magic_user.wounds.severe > 0 {
@@ -226,11 +234,10 @@ fn elara_turn(elara: &mut Combatant, malachar: &mut Combatant, round: i32) {
         let roll = d10();
         match elara.magic_user.magic.cast_spell("Fireball", roll) {
             Ok(result) => {
-                println!("  → Roll: {} | Total: {} vs target {} | Quality: {}",
-                    roll,
-                    result.total,
-                    result.target,
-                    result.quality);
+                println!(
+                    "  → Roll: {} | Total: {} vs target {} | Quality: {}",
+                    roll, result.total, result.target, result.quality
+                );
                 if result.success {
                     let damage = result.quality.max(1) + 3; // Base damage + quality
                     println!("  → HIT! {} damage!", damage);
@@ -246,25 +253,30 @@ fn elara_turn(elara: &mut Combatant, malachar: &mut Combatant, round: i32) {
     }
 
     let penalty = elara.magic_user.magic.exhaustion_penalty();
-    println!("  Exhaustion: {} points (penalty: {:+})",
-        elara.magic_user.magic.exhaustion_points, penalty);
+    println!(
+        "  Exhaustion: {} points (penalty: {:+})",
+        elara.magic_user.magic.exhaustion_points, penalty
+    );
 }
 
 fn malachar_turn(malachar: &mut Combatant, elara: &mut Combatant, round: i32) {
     println!("{}' turn:", malachar.character.name);
 
     // Alternate between spells
-    let spell_name = if round % 2 == 0 { "Death Bolt" } else { "Mind Blast" };
+    let spell_name = if round % 2 == 0 {
+        "Death Bolt"
+    } else {
+        "Mind Blast"
+    };
 
     println!("  Casting {} at {}...", spell_name, elara.character.name);
     let roll = d10();
     match malachar.magic_user.magic.cast_spell(spell_name, roll) {
         Ok(result) => {
-            println!("  → Roll: {} | Total: {} vs target {} | Quality: {}",
-                roll,
-                result.total,
-                result.target,
-                result.quality);
+            println!(
+                "  → Roll: {} | Total: {} vs target {} | Quality: {}",
+                roll, result.total, result.target, result.quality
+            );
             if result.success {
                 let damage = if spell_name == "Death Bolt" {
                     result.quality.max(1) + 4 // Death Bolt is more powerful
@@ -283,8 +295,10 @@ fn malachar_turn(malachar: &mut Combatant, elara: &mut Combatant, round: i32) {
     }
 
     let penalty = malachar.magic_user.magic.exhaustion_penalty();
-    println!("  Exhaustion: {} points (penalty: {:+})",
-        malachar.magic_user.magic.exhaustion_points, penalty);
+    println!(
+        "  Exhaustion: {} points (penalty: {:+})",
+        malachar.magic_user.magic.exhaustion_points, penalty
+    );
 }
 
 fn print_character_sheet(combatant: &Combatant) {
@@ -292,41 +306,55 @@ fn print_character_sheet(combatant: &Combatant) {
     println!("║ {:37} ║", combatant.character.name);
     println!("╠═══════════════════════════════════════╣");
     println!("║ ATTRIBUTES:                           ║");
-    println!("║   EMP: {}   INT: {}   WIL: {}          ║",
+    println!(
+        "║   EMP: {}   INT: {}   WIL: {}          ║",
         combatant.character.attributes.empathy,
         combatant.character.attributes.intuition,
-        combatant.character.attributes.willpower);
-    println!("║   CON: {}   STR: {}   DEX: {}          ║",
+        combatant.character.attributes.willpower
+    );
+    println!(
+        "║   CON: {}   STR: {}   DEX: {}          ║",
         combatant.magic_user.constitution,
         combatant.character.attributes.strength,
-        combatant.character.attributes.dexterity);
+        combatant.character.attributes.dexterity
+    );
     println!("╠═══════════════════════════════════════╣");
     println!("║ MAGIC:                                ║");
 
     for (branch, lore) in &combatant.magic_user.magic.lores {
-        println!("║   {}: Level {}                    ║",
-            format!("{:?}", branch), lore.level);
+        println!(
+            "║   {}: Level {}                    ║",
+            format!("{:?}", branch),
+            lore.level
+        );
     }
 
     println!("║ SPELLS:                               ║");
     for (name, learned) in &combatant.magic_user.magic.spells {
-        println!("║   {}: Skill {}                ║", name, learned.skill_level);
+        println!(
+            "║   {}: Skill {}                ║",
+            name, learned.skill_level
+        );
     }
     println!("╚═══════════════════════════════════════╝");
 }
 
 fn print_status(elara: &Combatant, malachar: &Combatant) {
     println!("Status:");
-    println!("  {}: Wounds (L:{} S:{} C:{})",
+    println!(
+        "  {}: Wounds (L:{} S:{} C:{})",
         elara.character.name,
         elara.magic_user.wounds.light,
         elara.magic_user.wounds.severe,
-        elara.magic_user.wounds.critical);
-    println!("  {}: Wounds (L:{} S:{} C:{})",
+        elara.magic_user.wounds.critical
+    );
+    println!(
+        "  {}: Wounds (L:{} S:{} C:{})",
         malachar.character.name,
         malachar.magic_user.wounds.light,
         malachar.magic_user.wounds.severe,
-        malachar.magic_user.wounds.critical);
+        malachar.magic_user.wounds.critical
+    );
 }
 
 fn print_final_status(elara: &Combatant, malachar: &Combatant) {

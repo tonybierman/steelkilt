@@ -1,5 +1,5 @@
-use steelkilt::*;
 use std::io::{self, Write};
+use steelkilt::*;
 
 fn main() {
     println!("=== DRAFT RPG COMBAT SIMULATOR ===");
@@ -9,8 +9,8 @@ fn main() {
     let mut fighter1 = create_character(
         "Aldric the Bold",
         Attributes::new(8, 6, 7, 5, 6, 5, 5, 7, 4),
-        7,  // weapon skill
-        5,  // dodge skill
+        7, // weapon skill
+        5, // dodge skill
         Weapon::long_sword(),
         Armor::chain_mail(),
     );
@@ -18,8 +18,8 @@ fn main() {
     let mut fighter2 = create_character(
         "Grimwald Ironfist",
         Attributes::new(9, 5, 8, 4, 5, 6, 4, 6, 3),
-        6,  // weapon skill
-        4,  // dodge skill
+        6, // weapon skill
+        4, // dodge skill
         Weapon::two_handed_sword(),
         Armor::leather(),
     );
@@ -93,7 +93,14 @@ fn main() {
     display_character(&fighter2);
 }
 
-fn create_character(name: &str, attributes: Attributes, weapon_skill: i32, dodge_skill: i32, weapon: Weapon, armor: Armor) -> Character {
+fn create_character(
+    name: &str,
+    attributes: Attributes,
+    weapon_skill: i32,
+    dodge_skill: i32,
+    weapon: Weapon,
+    armor: Armor,
+) -> Character {
     Character::new(name, attributes, weapon_skill, dodge_skill, weapon, armor)
 }
 
@@ -102,41 +109,69 @@ fn display_character(character: &Character) {
     println!("║ {:<37} ║", character.name);
     println!("╠═══════════════════════════════════════╣");
     println!("║ PHYSICAL ATTRIBUTES:                  ║");
-    println!("║   STR: {:<2}  DEX: {:<2}  CON: {:<2}         ║",
+    println!(
+        "║   STR: {:<2}  DEX: {:<2}  CON: {:<2}         ║",
         character.attributes.strength,
         character.attributes.dexterity,
-        character.attributes.constitution);
+        character.attributes.constitution
+    );
     println!("║ MENTAL ATTRIBUTES:                    ║");
-    println!("║   REA: {:<2}  INT: {:<2}  WIL: {:<2}         ║",
-        character.attributes.reason,
-        character.attributes.intuition,
-        character.attributes.willpower);
+    println!(
+        "║   REA: {:<2}  INT: {:<2}  WIL: {:<2}         ║",
+        character.attributes.reason, character.attributes.intuition, character.attributes.willpower
+    );
     println!("║ INTERACTIVE ATTRIBUTES:               ║");
-    println!("║   CHA: {:<2}  PER: {:<2}  EMP: {:<2}         ║",
+    println!(
+        "║   CHA: {:<2}  PER: {:<2}  EMP: {:<2}         ║",
         character.attributes.charisma,
         character.attributes.perception,
-        character.attributes.empathy);
+        character.attributes.empathy
+    );
     println!("╠═══════════════════════════════════════╣");
-    println!("║ Weapon Skill: {:<2}                     ║", character.weapon_skill);
-    println!("║ Dodge Skill:  {:<2}                     ║", character.dodge_skill);
+    println!(
+        "║ Weapon Skill: {:<2}                     ║",
+        character.weapon_skill
+    );
+    println!(
+        "║ Dodge Skill:  {:<2}                     ║",
+        character.dodge_skill
+    );
     println!("║ Weapon: {:<28} ║", character.weapon.name);
-    println!("║   Damage: {:<2}                         ║", character.weapon.damage);
+    println!(
+        "║   Damage: {:<2}                         ║",
+        character.weapon.damage
+    );
     println!("║ Armor: {:<29} ║", character.armor.name);
-    println!("║   Protection: {:<2}                     ║", character.armor.protection);
+    println!(
+        "║   Protection: {:<2}                     ║",
+        character.armor.protection
+    );
     println!("╠═══════════════════════════════════════╣");
     println!("║ WOUNDS:                               ║");
-    println!("║   Light:    {:<2}                       ║", character.wounds.light);
-    println!("║   Severe:   {:<2}                       ║", character.wounds.severe);
-    println!("║   Critical: {:<2}                       ║", character.wounds.critical);
-    println!("║ Status: {:<30} ║", if !character.is_alive() {
-        "DEAD"
-    } else if character.wounds.is_incapacitated() {
-        "INCAPACITATED"
-    } else if character.wounds.severe > 0 || character.wounds.light > 0 {
-        "WOUNDED"
-    } else {
-        "HEALTHY"
-    });
+    println!(
+        "║   Light:    {:<2}                       ║",
+        character.wounds.light
+    );
+    println!(
+        "║   Severe:   {:<2}                       ║",
+        character.wounds.severe
+    );
+    println!(
+        "║   Critical: {:<2}                       ║",
+        character.wounds.critical
+    );
+    println!(
+        "║ Status: {:<30} ║",
+        if !character.is_alive() {
+            "DEAD"
+        } else if character.wounds.is_incapacitated() {
+            "INCAPACITATED"
+        } else if character.wounds.severe > 0 || character.wounds.light > 0 {
+            "WOUNDED"
+        } else {
+            "HEALTHY"
+        }
+    );
     println!("╚═══════════════════════════════════════╝");
 }
 
@@ -153,20 +188,21 @@ fn display_status(character: &Character) {
         "HEALTHY"
     };
 
-    println!("{}: {} (Wounds: L:{} S:{} C:{})",
+    println!(
+        "{}: {} (Wounds: L:{} S:{} C:{})",
         character.name,
         status,
         character.wounds.light,
         character.wounds.severe,
-        character.wounds.critical);
+        character.wounds.critical
+    );
 }
 
 fn display_combat_result(result: &CombatResult) {
-    println!("\n>>> Attack: {} rolls {} vs {}'s defense {}",
-        result.attacker,
-        result.attack_roll,
-        result.defender,
-        result.defense_roll);
+    println!(
+        "\n>>> Attack: {} rolls {} vs {}'s defense {}",
+        result.attacker, result.attack_roll, result.defender, result.defense_roll
+    );
 
     if result.hit {
         println!(">>> HIT! {} damage dealt", result.damage);

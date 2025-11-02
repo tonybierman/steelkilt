@@ -184,7 +184,9 @@ mod tests {
     #[test]
     fn test_defensive_position() {
         let mut stance = CombatStance::new();
-        stance.set_maneuver(CombatManeuver::DefensivePosition).unwrap();
+        stance
+            .set_maneuver(CombatManeuver::DefensivePosition)
+            .unwrap();
 
         assert_eq!(stance.total_defense_modifier(), 2);
         assert!(!stance.current_maneuver.can_attack());

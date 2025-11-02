@@ -59,8 +59,10 @@ fn demo_skills() {
     println!("\nRaising Longsword skill:");
     for i in 1..=5 {
         match skill_set.raise_skill("Longsword") {
-            Ok(()) => println!("  Level {}: Success! Points remaining: {}",
-                i, skill_set.available_points),
+            Ok(()) => println!(
+                "  Level {}: Success! Points remaining: {}",
+                i, skill_set.available_points
+            ),
             Err(e) => println!("  Failed: {}", e),
         }
     }
@@ -73,14 +75,19 @@ fn demo_skills() {
     // Hard skill - Arcane Lore
     println!("\nRaising Arcane Lore (Hard skill):");
     match skill_set.raise_skill("Arcane Lore") {
-        Ok(()) => println!("  Level 1: Success! Points remaining: {}",
-            skill_set.available_points),
+        Ok(()) => println!(
+            "  Level 1: Success! Points remaining: {}",
+            skill_set.available_points
+        ),
         Err(e) => println!("  Failed: {}", e),
     }
 
     println!("\nFinal state:");
     println!("  Longsword: {}", skill_set.get_skill_level("Longsword"));
-    println!("  Arcane Lore: {}", skill_set.get_skill_level("Arcane Lore"));
+    println!(
+        "  Arcane Lore: {}",
+        skill_set.get_skill_level("Arcane Lore")
+    );
     println!("  Points remaining: {}", skill_set.available_points);
 }
 
@@ -106,9 +113,18 @@ fn demo_maneuvers() {
 
     println!("\nUsing Charge maneuver:");
     stance.set_maneuver(CombatManeuver::Charge).unwrap();
-    println!("  Total attack modifier: {:+}", stance.total_attack_modifier());
-    println!("  Total defense modifier: {:+}", stance.total_defense_modifier());
-    println!("  Total damage modifier: {:+}", stance.total_damage_modifier());
+    println!(
+        "  Total attack modifier: {:+}",
+        stance.total_attack_modifier()
+    );
+    println!(
+        "  Total defense modifier: {:+}",
+        stance.total_defense_modifier()
+    );
+    println!(
+        "  Total damage modifier: {:+}",
+        stance.total_damage_modifier()
+    );
 
     println!("\nAiming for Aimed Attack:");
     stance.start_aiming();
@@ -125,12 +141,14 @@ fn demo_exhaustion() {
     println!("Simulating 15 rounds of intense combat:");
     for round in 1..=15 {
         exhaustion.add_points(1);
-        println!("Round {}: {} points, Level: {}, Penalty: {}, Status: {}",
+        println!(
+            "Round {}: {} points, Level: {}, Penalty: {}, Status: {}",
             round,
             exhaustion.points,
             exhaustion.level(),
             exhaustion.penalty(),
-            exhaustion.status());
+            exhaustion.status()
+        );
 
         if exhaustion.needs_willpower_check() && round == 14 {
             println!("  → Willpower check required to continue!");
@@ -144,7 +162,11 @@ fn demo_exhaustion() {
 
     println!("\nResting for 10 rounds:");
     exhaustion.rest(10);
-    println!("After rest: {} points, Status: {}", exhaustion.points, exhaustion.status());
+    println!(
+        "After rest: {} points, Status: {}",
+        exhaustion.points,
+        exhaustion.status()
+    );
 }
 
 fn demo_hit_locations() {
@@ -160,8 +182,11 @@ fn demo_hit_locations() {
         println!("Attack from {:?}:", direction);
         for _ in 0..3 {
             let location = HitLocation::determine(direction);
-            println!("  → Hit: {} (damage multiplier: {:.2}x)",
-                location, location.damage_multiplier());
+            println!(
+                "  → Hit: {} (damage multiplier: {:.2}x)",
+                location,
+                location.damage_multiplier()
+            );
         }
         println!();
     }
@@ -169,16 +194,26 @@ fn demo_hit_locations() {
     println!("Tracking damage to Right Arm:");
     let mut arm = LocationalDamage::new(HitLocation::RightArm);
 
-    println!("  Initial: functional={}, penalty={}",
-        arm.is_functional(), arm.penalty());
+    println!(
+        "  Initial: functional={}, penalty={}",
+        arm.is_functional(),
+        arm.penalty()
+    );
 
     arm.add_wound(hit_location::WoundSeverity::Light);
-    println!("  After light wound: functional={}, penalty={}",
-        arm.is_functional(), arm.penalty());
+    println!(
+        "  After light wound: functional={}, penalty={}",
+        arm.is_functional(),
+        arm.penalty()
+    );
 
     arm.add_wound(hit_location::WoundSeverity::Severe);
-    println!("  After severe wound: functional={}, disabled={}, penalty={}",
-        arm.is_functional(), arm.disabled, arm.penalty());
+    println!(
+        "  After severe wound: functional={}, disabled={}, penalty={}",
+        arm.is_functional(),
+        arm.disabled,
+        arm.penalty()
+    );
 
     if arm.location.causes_weapon_drop() {
         println!("  → Weapon dropped!");
@@ -205,24 +240,14 @@ fn demo_ranged_combat() {
     println!("\nCalculating attack modifiers:");
     let distances = vec![10, 30, 50, 80];
     for distance in distances {
-        let total_mod = calculate_ranged_modifiers(
-            distance,
-            TargetSize::Medium,
-            Cover::None,
-            &bow,
-            &state,
-        );
+        let total_mod =
+            calculate_ranged_modifiers(distance, TargetSize::Medium, Cover::None, &bow, &state);
         println!("  At {}m: {:+} modifier", distance, total_mod);
     }
 
     println!("\nWith cover:");
-    let total_mod = calculate_ranged_modifiers(
-        25,
-        TargetSize::Medium,
-        Cover::Partial,
-        &bow,
-        &state,
-    );
+    let total_mod =
+        calculate_ranged_modifiers(25, TargetSize::Medium, Cover::Partial, &bow, &state);
     println!("  25m with partial cover: {:+} modifier", total_mod);
 
     println!("\nFiring...");
@@ -265,10 +290,17 @@ fn demo_magic() {
 
     let result = mage.cast_spell("Detect Magic", 6).unwrap();
     println!("  Success: {}", result.success);
-    println!("  Quality: {} ({})", result.quality,
-        if result.quality >= 5 { "Excellent" }
-        else if result.quality >= 0 { "Good" }
-        else { "Poor" });
+    println!(
+        "  Quality: {} ({})",
+        result.quality,
+        if result.quality >= 5 {
+            "Excellent"
+        } else if result.quality >= 0 {
+            "Good"
+        } else {
+            "Poor"
+        }
+    );
 
     println!("\nMagical exhaustion:");
     println!("  Points: {}", mage.exhaustion_points);

@@ -6,10 +6,10 @@ use std::fmt;
 /// Difficulty of learning a skill
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SkillDifficulty {
-    Easy,        // Cost: 1 point up to attribute score
-    Normal,      // Cost: normal progression
-    Hard,        // Cost: 2x normal progression
-    VeryHard,    // Cost: 3x normal progression
+    Easy,     // Cost: 1 point up to attribute score
+    Normal,   // Cost: normal progression
+    Hard,     // Cost: 2x normal progression
+    VeryHard, // Cost: 3x normal progression
 }
 
 impl SkillDifficulty {
@@ -67,7 +67,10 @@ impl Skill {
         }
 
         // Special handling for Easy skills up to attribute score
-        if self.difficulty == SkillDifficulty::Easy && from_level == 0 && to_level <= self.associated_attribute {
+        if self.difficulty == SkillDifficulty::Easy
+            && from_level == 0
+            && to_level <= self.associated_attribute
+        {
             return 1; // One-time cost of 1 point to learn easy skill up to attribute
         }
 
@@ -138,7 +141,9 @@ impl SkillSet {
     /// Attempt to raise a skill by one level
     pub fn raise_skill(&mut self, skill_name: &str) -> Result<(), SkillError> {
         // Check if skill exists
-        let skill = self.skills.get(skill_name)
+        let skill = self
+            .skills
+            .get(skill_name)
             .ok_or_else(|| SkillError::SkillNotFound(skill_name.to_string()))?;
 
         // Check prerequisites
@@ -153,7 +158,7 @@ impl SkillSet {
         if self.available_points < cost {
             return Err(SkillError::InsufficientPoints {
                 needed: cost,
-                available: self.available_points
+                available: self.available_points,
             });
         }
 
@@ -183,7 +188,11 @@ impl fmt::Display for SkillError {
         match self {
             SkillError::SkillNotFound(name) => write!(f, "Skill not found: {}", name),
             SkillError::InsufficientPoints { needed, available } => {
-                write!(f, "Insufficient points: need {}, have {}", needed, available)
+                write!(
+                    f,
+                    "Insufficient points: need {}, have {}",
+                    needed, available
+                )
             }
             SkillError::PrerequisitesNotMet => write!(f, "Prerequisites not met"),
         }
@@ -274,8 +283,8 @@ mod tests {
         skill_set.add_skill(basic);
 
         // Add advanced skill with prerequisite
-        let advanced = Skill::new("Calculus", 7, SkillDifficulty::Hard)
-            .with_prerequisite("Mathematics", 3);
+        let advanced =
+            Skill::new("Calculus", 7, SkillDifficulty::Hard).with_prerequisite("Mathematics", 3);
         skill_set.add_skill(advanced);
 
         // Try to learn Calculus without prerequisite

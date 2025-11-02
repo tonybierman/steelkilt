@@ -72,7 +72,7 @@ pub fn handle_main_menu_input(
             commands.entity(entity).despawn_recursive();
         }
         spawn_management_ui(&mut commands);
-    } else if keyboard.just_pressed(KeyCode::KeyQ) || keyboard.just_pressed(KeyCode::Escape) {
+    } else if keyboard.just_pressed(KeyCode::KeyQ) {
         app_exit_events.send(AppExit::Success);
     }
 }

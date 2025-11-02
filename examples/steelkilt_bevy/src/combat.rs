@@ -200,6 +200,59 @@ pub fn handle_combat_input(
         return;
     }
 
+    // Check if current attacker can act before allowing any combat actions
+    if combat_state.waiting_for_defense {
+        let mut current_attacker_can_act = true;
+        let mut current_attacker_name = String::new();
+
+        for (_, fighter) in fighters.iter() {
+            if (combat_state.current_attacker == 1 && fighter.is_player_one)
+                || (combat_state.current_attacker == 2 && !fighter.is_player_one)
+            {
+                current_attacker_can_act = fighter.character.can_act();
+                current_attacker_name = fighter.character.name.clone();
+                break;
+            }
+        }
+
+        if !current_attacker_can_act {
+            // Current attacker cannot act - skip their turn
+            combat_state.combat_log.push(format!(
+                "{} is incapacitated and cannot act!",
+                current_attacker_name
+            ));
+
+            // Check if both fighters are incapacitated
+            let mut both_incapacitated = true;
+            for (_, fighter) in fighters.iter() {
+                if fighter.character.can_act() {
+                    both_incapacitated = false;
+                    break;
+                }
+            }
+
+            if both_incapacitated {
+                combat_state
+                    .combat_log
+                    .push("\nBoth fighters are incapacitated!".to_string());
+                combat_state.game_over = true;
+                return;
+            }
+
+            // Skip to next fighter
+            if combat_state.current_attacker == 1 {
+                combat_state.current_attacker = 2;
+            } else {
+                combat_state.current_attacker = 1;
+                combat_state.round += 1;
+                let round = combat_state.round;
+                combat_state.combat_log.push(format!("\n--- ROUND {} ---", round));
+            }
+            combat_state.waiting_for_defense = true;
+            return;
+        }
+    }
+
     // Handle combat mode selection (R for ranged, M for melee)
     if combat_state.waiting_for_defense {
         // Check if current attacker has ranged weapon
@@ -372,6 +425,7 @@ pub fn handle_combat_input(
     if combat_state.waiting_for_defense && combat_state.combat_mode == CombatMode::Melee {
         let mut attacker = None;
         let mut defender = None;
+        let mut defender_can_act = true;
 
         for (_, fighter) in fighters.iter() {
             if (combat_state.current_attacker == 1 && fighter.is_player_one)
@@ -380,10 +434,85 @@ pub fn handle_combat_input(
                 attacker = Some(fighter.character.clone());
             } else {
                 defender = Some(fighter.character.clone());
+                defender_can_act = fighter.character.can_act();
             }
         }
 
         if let (Some(mut att), Some(mut def)) = (attacker, defender) {
+            // Check if defender can actively defend
+            if !defender_can_act {
+                // Defender is incapacitated - cannot actively defend, auto-dodge with penalty
+                combat_state.combat_log.push(format!(
+                    "{} is too wounded to defend properly!",
+                    def.name
+                ));
+
+                let result = combat_round(&mut att, &mut def, DefenseAction::Dodge);
+
+                // Add combat result to log
+                combat_state.combat_log.push(format!(
+                    "\n>>> Attack: {} rolls {} vs {}'s feeble defense {}",
+                    result.attacker, result.attack_roll, result.defender, result.defense_roll
+                ));
+
+                if result.hit {
+                    combat_state
+                        .combat_log
+                        .push(format!(">>> HIT! {} damage dealt", result.damage));
+                    if let Some(level) = result.wound_level {
+                        combat_state
+                            .combat_log
+                            .push(format!(">>> {} wound inflicted!", level));
+                    }
+                    if result.defender_died {
+                        combat_state.combat_log.push(">>> FATAL BLOW!".to_string());
+                    }
+                } else {
+                    combat_state
+                        .combat_log
+                        .push(">>> MISS! The attack was fumbled.".to_string());
+                }
+
+                // Update fighters
+                for (_, mut fighter) in fighters.iter_mut() {
+                    if (combat_state.current_attacker == 1 && fighter.is_player_one)
+                        || (combat_state.current_attacker == 2 && !fighter.is_player_one)
+                    {
+                        fighter.character = att.clone();
+                    } else {
+                        fighter.character = def.clone();
+                    }
+                }
+
+                // Check for death
+                if !def.is_alive() {
+                    combat_state
+                        .combat_log
+                        .push(format!("\n{} has been slain!", def.name));
+                    combat_state
+                        .combat_log
+                        .push(format!("{} is victorious!", att.name));
+                    combat_state.game_over = true;
+                    combat_state.waiting_for_defense = false;
+                    return;
+                }
+
+                // Switch turns
+                if combat_state.current_attacker == 1 {
+                    combat_state.current_attacker = 2;
+                } else {
+                    combat_state.current_attacker = 1;
+                    combat_state.round += 1;
+                    let round = combat_state.round;
+                    combat_state.paused = true;
+                    combat_state.waiting_for_defense = false;
+                    combat_state
+                        .combat_log
+                        .push(format!("\n--- ROUND {} ---", round));
+                }
+                return;
+            }
+
             let defense_action = if keyboard.just_pressed(KeyCode::KeyP) {
                 Some(DefenseAction::Parry)
             } else if keyboard.just_pressed(KeyCode::KeyD) {

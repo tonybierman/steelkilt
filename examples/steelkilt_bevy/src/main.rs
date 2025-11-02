@@ -539,7 +539,7 @@ fn handle_selection_input(
     }
 
     if keyboard.just_pressed(KeyCode::ArrowDown) {
-        if combat_state.selection_cursor < combatants.len().min(10) - 1 {
+        if combat_state.selection_cursor < combatants.len() - 1 {
             combat_state.selection_cursor += 1;
         }
     }
@@ -631,7 +631,7 @@ fn update_selection_ui(
         let mut display = String::from("=== CHARACTER SELECTION ===\n\n");
         display.push_str("Select two combatants to fight:\n\n");
 
-        for (i, name) in combatants.iter().enumerate().take(10) {
+        for (i, name) in combatants.iter().enumerate() {
             let cursor = if i == combat_state.selection_cursor {
                 "> "
             } else {

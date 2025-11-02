@@ -148,7 +148,7 @@ The application follows this state flow:
 
 ### Loading Combatants from JSON
 
-The application loads combatant definitions from JSON files in the `combatants/` directory. On startup, you'll see a character selection screen showing up to 10 available combatants.
+The application loads combatant definitions from JSON files in the `combatants/` directory. On startup, you'll see a character selection screen showing all available combatants.
 
 **Important**: Always run the application from the `examples/steelkilt_bevy` directory so it can find the `combatants/` folder:
 
@@ -165,7 +165,7 @@ cargo run
 
 ### Included Combatants
 
-The project includes 12 pre-made combatants (only first 10 shown):
+The project includes 12 pre-made combatants:
 - **Warriors**: Aldric, Grimwald, Thora, Kael, Ragnar, Garrick, Zephyr, Elara
 - **Mages**: Mira, Brother Aldwyn, Sylvana, Morgana
 

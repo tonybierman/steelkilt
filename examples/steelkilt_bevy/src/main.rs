@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use steelkilt::*;
 use std::fs;
 use std::path::Path;
+use steelkilt::*;
 
 fn main() {
     App::new()
@@ -17,17 +17,21 @@ fn main() {
         .init_resource::<CombatState>()
         .init_resource::<ManagementState>()
         .add_systems(Startup, setup)
-        .add_systems(Update, (
-            handle_main_menu_input,
-            handle_management_input,
-            handle_selection_input,
-            handle_combat_input,
-            update_combat,
-            update_main_menu_ui,
-            update_management_ui,
-            update_selection_ui,
-            update_combat_ui,
-        ).chain())
+        .add_systems(
+            Update,
+            (
+                handle_main_menu_input,
+                handle_management_input,
+                handle_selection_input,
+                handle_combat_input,
+                update_combat,
+                update_main_menu_ui,
+                update_management_ui,
+                update_selection_ui,
+                update_combat_ui,
+            )
+                .chain(),
+        )
         .run();
 }
 
@@ -142,6 +146,9 @@ struct ManagementUI;
 struct SelectionUI;
 
 #[derive(Component)]
+struct SelectionText;
+
+#[derive(Component)]
 struct CombatUI;
 
 #[derive(Component)]
@@ -188,7 +195,10 @@ fn load_character_from_file(filename: &str) -> Result<Character, Box<dyn std::er
     Ok(character)
 }
 
-fn save_character_to_file(filename: &str, character: &Character) -> Result<(), Box<dyn std::error::Error>> {
+fn save_character_to_file(
+    filename: &str,
+    character: &Character,
+) -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new("combatants").join(format!("{}.json", filename));
     let contents = serde_json::to_string_pretty(character)?;
     fs::write(path, contents)?;
@@ -342,7 +352,9 @@ fn handle_management_input(
             let filename_clone = filename.clone();
             if delete_character_file(&filename_clone).is_ok() {
                 management_state.combatants = load_available_combatants();
-                if management_state.selected_index >= management_state.combatants.len() && management_state.selected_index > 0 {
+                if management_state.selected_index >= management_state.combatants.len()
+                    && management_state.selected_index > 0
+                {
                     management_state.selected_index -= 1;
                 }
             }
@@ -357,7 +369,9 @@ fn handle_management_input(
     // Navigation
     if keyboard.just_pressed(KeyCode::ArrowUp) && management_state.selected_index > 0 {
         management_state.selected_index -= 1;
-    } else if keyboard.just_pressed(KeyCode::ArrowDown) && management_state.selected_index < management_state.combatants.len().saturating_sub(1) {
+    } else if keyboard.just_pressed(KeyCode::ArrowDown)
+        && management_state.selected_index < management_state.combatants.len().saturating_sub(1)
+    {
         management_state.selected_index += 1;
     }
 
@@ -398,11 +412,10 @@ fn update_management_ui(
 
     for mut text in query.iter_mut() {
         if let Some(ref filename) = management_state.confirm_delete {
-            **text = format!(
-                "Delete '{}'?\n\n[Y] Yes, delete\n[N] No, cancel",
-                filename
-            );
-        } else if management_state.mode == ManagementMode::View && !management_state.combatants.is_empty() {
+            **text = format!("Delete '{}'?\n\n[Y] Yes, delete\n[N] No, cancel", filename);
+        } else if management_state.mode == ManagementMode::View
+            && !management_state.combatants.is_empty()
+        {
             // View mode - show character details
             let filename = &management_state.combatants[management_state.selected_index];
             if let Ok(character) = load_character_from_file(filename) {
@@ -438,7 +451,11 @@ fn update_management_ui(
                 display.push_str("No combatants found.\n\n");
             } else {
                 for (i, name) in management_state.combatants.iter().enumerate() {
-                    let marker = if i == management_state.selected_index { ">" } else { " " };
+                    let marker = if i == management_state.selected_index {
+                        ">"
+                    } else {
+                        " "
+                    };
                     display.push_str(&format!("{} {}\n", marker, name));
                 }
                 display.push_str("\n");
@@ -510,9 +527,15 @@ fn handle_selection_input(
 
     // Number keys 1-9 and 0 for selecting fighters
     let number_keys = [
-        (KeyCode::Digit1, 0), (KeyCode::Digit2, 1), (KeyCode::Digit3, 2),
-        (KeyCode::Digit4, 3), (KeyCode::Digit5, 4), (KeyCode::Digit6, 5),
-        (KeyCode::Digit7, 6), (KeyCode::Digit8, 7), (KeyCode::Digit9, 8),
+        (KeyCode::Digit1, 0),
+        (KeyCode::Digit2, 1),
+        (KeyCode::Digit3, 2),
+        (KeyCode::Digit4, 3),
+        (KeyCode::Digit5, 4),
+        (KeyCode::Digit6, 5),
+        (KeyCode::Digit7, 6),
+        (KeyCode::Digit8, 7),
+        (KeyCode::Digit9, 8),
         (KeyCode::Digit0, 9),
     ];
 
@@ -520,7 +543,9 @@ fn handle_selection_input(
         if keyboard.just_pressed(key) && index < combatants.len() {
             if combat_state.selected_fighter1.is_none() {
                 combat_state.selected_fighter1 = Some(index);
-            } else if combat_state.selected_fighter2.is_none() && Some(index) != combat_state.selected_fighter1 {
+            } else if combat_state.selected_fighter2.is_none()
+                && Some(index) != combat_state.selected_fighter1
+            {
                 combat_state.selected_fighter2 = Some(index);
             }
         }
@@ -528,7 +553,10 @@ fn handle_selection_input(
 
     // Enter to start combat
     if keyboard.just_pressed(KeyCode::Enter) {
-        if let (Some(idx1), Some(idx2)) = (combat_state.selected_fighter1, combat_state.selected_fighter2) {
+        if let (Some(idx1), Some(idx2)) = (
+            combat_state.selected_fighter1,
+            combat_state.selected_fighter2,
+        ) {
             let name1 = &combatants[idx1];
             let name2 = &combatants[idx2];
 
@@ -701,7 +729,9 @@ fn spawn_combat_ui(commands: &mut Commands) {
 
             // Instructions
             parent.spawn((
-                Text::new("Press [P] for Parry or [D] for Dodge\nPress [SPACE] to continue | [Q] to quit"),
+                Text::new(
+                    "Press [P] for Parry or [D] for Dodge\nPress [SPACE] to continue | [Q] to quit",
+                ),
                 TextFont {
                     font_size: 20.0,
                     ..default()
@@ -742,7 +772,9 @@ fn handle_combat_input(
     // Handle quit
     if keyboard.just_pressed(KeyCode::KeyQ) || keyboard.just_pressed(KeyCode::Escape) {
         combat_state.game_over = true;
-        combat_state.combat_log.push("\nCombat ended by user.".to_string());
+        combat_state
+            .combat_log
+            .push("\nCombat ended by user.".to_string());
         return;
     }
 
@@ -781,15 +813,21 @@ fn handle_combat_input(
                 ));
 
                 if result.hit {
-                    combat_state.combat_log.push(format!(">>> HIT! {} damage dealt", result.damage));
+                    combat_state
+                        .combat_log
+                        .push(format!(">>> HIT! {} damage dealt", result.damage));
                     if let Some(level) = result.wound_level {
-                        combat_state.combat_log.push(format!(">>> {} wound inflicted!", level));
+                        combat_state
+                            .combat_log
+                            .push(format!(">>> {} wound inflicted!", level));
                     }
                     if result.defender_died {
                         combat_state.combat_log.push(">>> FATAL BLOW!".to_string());
                     }
                 } else {
-                    combat_state.combat_log.push(">>> MISS! The attack was successfully defended.".to_string());
+                    combat_state
+                        .combat_log
+                        .push(">>> MISS! The attack was successfully defended.".to_string());
                 }
 
                 // Update fighters
@@ -805,8 +843,12 @@ fn handle_combat_input(
 
                 // Check for death
                 if !def.is_alive() {
-                    combat_state.combat_log.push(format!("\n{} has been slain!", def.name));
-                    combat_state.combat_log.push(format!("{} is victorious!", att.name));
+                    combat_state
+                        .combat_log
+                        .push(format!("\n{} has been slain!", def.name));
+                    combat_state
+                        .combat_log
+                        .push(format!("{} is victorious!", att.name));
                     combat_state.game_over = true;
                     combat_state.waiting_for_defense = false;
                     return;
@@ -821,7 +863,9 @@ fn handle_combat_input(
                     let round = combat_state.round;
                     combat_state.paused = true;
                     combat_state.waiting_for_defense = false;
-                    combat_state.combat_log.push(format!("\n--- ROUND {} ---", round));
+                    combat_state
+                        .combat_log
+                        .push(format!("\n--- ROUND {} ---", round));
                 }
             }
         }
@@ -853,7 +897,9 @@ fn handle_combat_input(
                 }
 
                 if both_incapacitated {
-                    combat_state.combat_log.push("\nBoth fighters are incapacitated!".to_string());
+                    combat_state
+                        .combat_log
+                        .push("\nBoth fighters are incapacitated!".to_string());
                     combat_state.game_over = true;
                 }
             }
@@ -861,10 +907,7 @@ fn handle_combat_input(
     }
 }
 
-fn update_combat(
-    combat_state: Res<CombatState>,
-    _fighters: Query<&Fighter>,
-) {
+fn update_combat(combat_state: Res<CombatState>, _fighters: Query<&Fighter>) {
     if combat_state.is_changed() {
         // Log state changes if needed
     }
@@ -874,9 +917,26 @@ fn update_combat_ui(
     combat_state: Res<CombatState>,
     game_state: Res<GameState>,
     fighters: Query<&Fighter>,
-    mut log_query: Query<&mut Text, (With<CombatLogText>, Without<StatusText>, Without<InstructionText>)>,
-    mut status_query: Query<(&mut Text, &StatusText), (Without<CombatLogText>, Without<InstructionText>)>,
-    mut instruction_query: Query<&mut Text, (With<InstructionText>, Without<CombatLogText>, Without<StatusText>)>,
+    mut log_query: Query<
+        &mut Text,
+        (
+            With<CombatLogText>,
+            Without<StatusText>,
+            Without<InstructionText>,
+        ),
+    >,
+    mut status_query: Query<
+        (&mut Text, &StatusText),
+        (Without<CombatLogText>, Without<InstructionText>),
+    >,
+    mut instruction_query: Query<
+        &mut Text,
+        (
+            With<InstructionText>,
+            Without<CombatLogText>,
+            Without<StatusText>,
+        ),
+    >,
 ) {
     if !game_state.is_in(GameStateEnum::Combat) {
         return;
@@ -953,7 +1013,8 @@ fn update_combat_ui(
                 defender_name
             );
         } else if combat_state.paused {
-            **instruction_text = "Press [SPACE] to continue to next round | [Q] to return to main menu".to_string();
+            **instruction_text =
+                "Press [SPACE] to continue to next round | [Q] to return to main menu".to_string();
         }
     }
 }

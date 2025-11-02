@@ -158,6 +158,62 @@ The workflow is defined in `.github/workflows/ci.yml` and runs on:
 
 All checks must pass before merging to main.
 
+## Release Process
+
+The project automates publishing to crates.io when a GitHub release is created.
+
+### Creating a Release
+
+1. **Update version in Cargo.toml**:
+   ```toml
+   [package]
+   version = "0.2.0"  # Update to new version
+   ```
+
+2. **Commit version change**:
+   ```bash
+   git add Cargo.toml
+   git commit -m "Bump version to 0.2.0"
+   git push origin main
+   ```
+
+3. **Create a Git tag**:
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+
+4. **Create GitHub Release**:
+   - Go to https://github.com/tonybierman/steelkilt/releases/new
+   - Select the tag you just pushed (v0.2.0)
+   - Add release title and notes
+   - Click "Publish release"
+
+5. **Automated workflow runs**:
+   - Validates version in Cargo.toml matches release tag
+   - Runs all tests, clippy, and formatting checks
+   - Publishes to crates.io using `CARGO_REGISTRY_TOKEN`
+   - Verifies publication succeeded
+
+### Prerequisites
+
+Before the first release, add your crates.io API token to GitHub:
+
+1. Get token from https://crates.io/me
+2. Go to repository Settings → Secrets and variables → Actions
+3. Create new secret named `CARGO_REGISTRY_TOKEN`
+4. Paste your crates.io token
+
+### Release Workflow
+
+The workflow (`.github/workflows/release.yml`) ensures:
+- Version consistency between Cargo.toml and git tag
+- All tests pass before publishing
+- Code quality checks pass (clippy, fmt)
+- Publication succeeds and is verified
+
+If validation fails, the workflow stops before publishing to crates.io.
+
 ## Bevy Integration Example
 
 The `examples/steelkilt_bevy/` directory contains a separate Cargo workspace demonstrating Bevy game engine integration. It's maintained as a standalone example rather than part of the main library to avoid forcing Bevy as a dependency.

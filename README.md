@@ -39,6 +39,18 @@ The combat system follows the Draft RPG rules:
 
 ## Installation
 
+Add steelkilt to your `Cargo.toml`:
+
+```toml
+[dependencies]
+steelkilt = "0.1.0"
+
+# With serde support for JSON serialization
+steelkilt = { version = "0.1.0", features = ["serde"] }
+```
+
+Or build from source:
+
 ```bash
 cargo build --release
 ```

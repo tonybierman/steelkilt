@@ -1,0 +1,32 @@
+{
+  "name": "Garrick Ironwall",
+  "attributes": {
+    "strength": 8,
+    "dexterity": 4,
+    "constitution": 10,
+    "reason": 4,
+    "intuition": 5,
+    "willpower": 8,
+    "charisma": 4,
+    "perception": 5,
+    "empathy": 3
+  },
+  "weapon_skill": 7,
+  "dodge_skill": 2,
+  "weapon": {
+    "name": "Mace",
+    "impact": "Medium",
+    "damage": 5
+  },
+  "armor": {
+    "name": "Full Plate",
+    "armor_type": "FullPlate",
+    "protection": 5,
+    "movement_penalty": -2
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

@@ -9,6 +9,11 @@ repository = "https://github.com/tonybierman/steelkilt"
 
 [dependencies]
 rand = "0.8"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
 
 [[bin]]
 name = "combat-sim"

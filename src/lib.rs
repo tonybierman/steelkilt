@@ -23,6 +23,9 @@ pub mod modules;
 use rand::Rng;
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Roll a d10 (10-sided die)
 pub fn d10() -> i32 {
     rand::thread_rng().gen_range(1..=10)
@@ -30,6 +33,7 @@ pub fn d10() -> i32 {
 
 /// Character attributes as defined in Draft RPG
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Attributes {
     // Physical
     pub strength: i32,      // STR
@@ -68,6 +72,7 @@ impl Attributes {
 
 /// Weapon impact classes
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum WeaponImpact {
     Small = 1,
     Medium = 2,
@@ -77,6 +82,7 @@ pub enum WeaponImpact {
 
 /// Weapon types
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Weapon {
     pub name: String,
     pub impact: WeaponImpact,
@@ -108,6 +114,7 @@ impl Weapon {
 
 /// Armor types and protection values
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ArmorType {
     HeavyCloth = 1,
     Leather = 2,
@@ -117,6 +124,7 @@ pub enum ArmorType {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Armor {
     pub name: String,
     pub armor_type: ArmorType,
@@ -158,6 +166,7 @@ impl Armor {
 
 /// Wound severity levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum WoundLevel {
     Light,
     Severe,
@@ -176,6 +185,7 @@ impl fmt::Display for WoundLevel {
 
 /// Character wounds tracking
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Wounds {
     pub light: i32,
     pub severe: i32,
@@ -238,6 +248,7 @@ impl Default for Wounds {
 
 /// A character in the Draft RPG system
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Character {
     pub name: String,
     pub attributes: Attributes,

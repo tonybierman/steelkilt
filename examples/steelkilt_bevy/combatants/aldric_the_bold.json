@@ -1,0 +1,32 @@
+{
+  "name": "Aldric the Bold",
+  "attributes": {
+    "strength": 8,
+    "dexterity": 6,
+    "constitution": 7,
+    "reason": 5,
+    "intuition": 6,
+    "willpower": 5,
+    "charisma": 5,
+    "perception": 7,
+    "empathy": 4
+  },
+  "weapon_skill": 7,
+  "dodge_skill": 5,
+  "weapon": {
+    "name": "Long Sword",
+    "impact": "Medium",
+    "damage": 5
+  },
+  "armor": {
+    "name": "Chain Mail",
+    "armor_type": "Chain",
+    "protection": 3,
+    "movement_penalty": -1
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

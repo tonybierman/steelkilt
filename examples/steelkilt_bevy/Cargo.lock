@@ -3790,9 +3790,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "steelkilt"
 version = "0.1.0"
-source = "git+https://github.com/tonybierman/steelkilt#8fe4e6a9f53eddfdda102a3e73f3ca9ff14c8bd1"
 dependencies = [
  "rand",
+ "serde",
 ]
 
 [[package]]
@@ -3800,6 +3800,8 @@ name = "steelkilt_bevy"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "serde",
+ "serde_json",
  "steelkilt",
 ]
 

@@ -1,0 +1,32 @@
+{
+  "name": "Grimwald Ironfist",
+  "attributes": {
+    "strength": 9,
+    "dexterity": 5,
+    "constitution": 8,
+    "reason": 4,
+    "intuition": 5,
+    "willpower": 6,
+    "charisma": 4,
+    "perception": 6,
+    "empathy": 3
+  },
+  "weapon_skill": 6,
+  "dodge_skill": 4,
+  "weapon": {
+    "name": "Two-Handed Sword",
+    "impact": "Large",
+    "damage": 7
+  },
+  "armor": {
+    "name": "Leather Armor",
+    "armor_type": "Leather",
+    "protection": 2,
+    "movement_penalty": 0
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

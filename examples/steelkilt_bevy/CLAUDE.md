@@ -38,7 +38,8 @@ cargo fmt -- --check # Check if code is formatted
 ## Dependencies
 
 - **Bevy 0.15**: Game engine framework
-- **steelkilt**: Draft 0.4 RPG combat system library (from GitHub)
+- **steelkilt**: Draft 0.4 RPG combat system library (local path with serde feature)
+- **serde & serde_json**: For loading combatants from JSON files
 
 ## Architecture
 
@@ -49,6 +50,8 @@ The application follows Bevy's ECS (Entity Component System) pattern:
 - `CombatLogText`: Marker for the combat log UI element
 - `StatusText`: Marker for fighter status displays (identified by fighter_id)
 - `InstructionText`: Marker for instruction/prompt text
+- `SelectionUI`: Marker for character selection UI container
+- `SelectionText`: Marker for the selection screen text element
 
 ### Resources
 - `CombatState`: Global state tracking:
@@ -57,12 +60,23 @@ The application follows Bevy's ECS (Entity Component System) pattern:
   - Whether waiting for defense input
   - Combat log history
   - Game over/paused state
+- `CharacterSelection`: Character selection state:
+  - List of available combatants (loaded from JSON files)
+  - Selected fighter indices (1 and 2)
+  - Whether currently in selection mode
 
 ### Systems
-- `setup`: Initializes fighters and UI (runs once at startup)
+- `setup`: Initializes UI (selection or combat based on state)
+- `handle_selection_input`: Processes number keys (1-0) for character selection and Enter to start
 - `handle_input`: Processes keyboard input for defense actions (P/D) and game flow (Space/Q)
 - `update_combat`: Placeholder for future combat automation logic
-- `update_ui`: Refreshes all UI text based on current combat state
+- `update_ui`: Refreshes combat UI text based on current combat state
+- `update_selection_ui`: Updates selection screen with available combatants and selections
+
+### Helper Functions
+- `load_available_combatants()`: Scans combatants directory and returns list of JSON files
+- `load_character_from_file()`: Deserializes a Character from a JSON file
+- `spawn_combat_ui()`: Creates the combat UI hierarchy dynamically after selection
 
 ### Combat Flow
 1. Fighter 1 attacks, opponent chooses defense (Parry or Dodge)
@@ -74,7 +88,41 @@ The application follows Bevy's ECS (Entity Component System) pattern:
 7. Combat ends when a fighter dies or both are incapacitated
 
 ### Controls
+
+**Character Selection:**
+- **1-9, 0**: Select combatants (first selection = Fighter 1, second = Fighter 2)
+- **Enter**: Start combat with selected fighters
+- **Backspace**: Clear selections
+
+**Combat:**
 - **P**: Choose Parry defense
 - **D**: Choose Dodge defense
 - **Space**: Continue to next round
 - **Q / Escape**: Quit combat
+
+## Combatant System
+
+### Loading Combatants from JSON
+
+The application loads combatant definitions from JSON files in the `combatants/` directory. On startup, you'll see a character selection screen showing up to 10 available combatants.
+
+**Important**: Always run the application from the `examples/steelkilt_bevy` directory so it can find the `combatants/` folder:
+
+```bash
+cd examples/steelkilt_bevy
+cargo run
+```
+
+### Creating Custom Combatants
+
+1. Create a new `.json` file in the `combatants/` directory
+2. Follow the format documented in `combatants/README.md`
+3. The new combatant will automatically appear in the selection screen on next launch
+
+### Included Combatants
+
+The project includes 12 pre-made combatants (only first 10 shown):
+- **Warriors**: Aldric, Grimwald, Thora, Kael, Ragnar, Garrick, Zephyr, Elara
+- **Mages**: Mira, Brother Aldwyn, Sylvana, Morgana
+
+Each has unique stat distributions optimized for different fighting styles.

@@ -1,0 +1,32 @@
+{
+  "name": "Elara Sunblade",
+  "attributes": {
+    "strength": 7,
+    "dexterity": 7,
+    "constitution": 7,
+    "reason": 6,
+    "intuition": 7,
+    "willpower": 8,
+    "charisma": 8,
+    "perception": 6,
+    "empathy": 7
+  },
+  "weapon_skill": 7,
+  "dodge_skill": 6,
+  "weapon": {
+    "name": "Blessed Sword",
+    "impact": "Medium",
+    "damage": 5
+  },
+  "armor": {
+    "name": "Chain Mail",
+    "armor_type": "Chain",
+    "protection": 3,
+    "movement_penalty": -1
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

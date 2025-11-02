@@ -1,0 +1,32 @@
+{
+  "name": "Mira Starweaver",
+  "attributes": {
+    "strength": 4,
+    "dexterity": 6,
+    "constitution": 5,
+    "reason": 8,
+    "intuition": 9,
+    "willpower": 7,
+    "charisma": 6,
+    "perception": 7,
+    "empathy": 9
+  },
+  "weapon_skill": 3,
+  "dodge_skill": 5,
+  "weapon": {
+    "name": "Dagger",
+    "impact": "Small",
+    "damage": 3
+  },
+  "armor": {
+    "name": "Heavy Cloth Robe",
+    "armor_type": "HeavyCloth",
+    "protection": 1,
+    "movement_penalty": 0
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

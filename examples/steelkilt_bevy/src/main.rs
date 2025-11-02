@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use steelkilt::*;
+use std::fs;
+use std::path::Path;
 
 fn main() {
     App::new()
@@ -12,11 +14,14 @@ fn main() {
             ..default()
         }))
         .init_resource::<CombatState>()
+        .init_resource::<CharacterSelection>()
         .add_systems(Startup, setup)
         .add_systems(Update, (
+            handle_selection_input,
             handle_input,
             update_combat,
             update_ui,
+            update_selection_ui,
         ).chain())
         .run();
 }
@@ -38,6 +43,12 @@ struct StatusText {
 #[derive(Component)]
 struct InstructionText;
 
+#[derive(Component)]
+struct SelectionUI;
+
+#[derive(Component)]
+struct SelectionText;
+
 #[derive(Resource)]
 struct CombatState {
     round: u32,
@@ -46,6 +57,50 @@ struct CombatState {
     combat_log: Vec<String>,
     game_over: bool,
     paused: bool,
+}
+
+#[derive(Resource)]
+struct CharacterSelection {
+    available_combatants: Vec<String>,
+    selected_fighter1: Option<usize>,
+    selected_fighter2: Option<usize>,
+    in_selection: bool,
+}
+
+impl Default for CharacterSelection {
+    fn default() -> Self {
+        Self {
+            available_combatants: load_available_combatants(),
+            selected_fighter1: None,
+            selected_fighter2: None,
+            in_selection: true,
+        }
+    }
+}
+
+fn load_available_combatants() -> Vec<String> {
+    let combatants_dir = "combatants";
+    let mut combatants = Vec::new();
+
+    if let Ok(entries) = fs::read_dir(combatants_dir) {
+        for entry in entries.flatten() {
+            if let Some(filename) = entry.file_name().to_str() {
+                if filename.ends_with(".json") {
+                    combatants.push(filename.trim_end_matches(".json").to_string());
+                }
+            }
+        }
+    }
+
+    combatants.sort();
+    combatants
+}
+
+fn load_character_from_file(filename: &str) -> Result<Character, Box<dyn std::error::Error>> {
+    let path = Path::new("combatants").join(format!("{}.json", filename));
+    let contents = fs::read_to_string(path)?;
+    let character: Character = serde_json::from_str(&contents)?;
+    Ok(character)
 }
 
 impl Default for CombatState {
@@ -61,120 +116,133 @@ impl Default for CombatState {
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, selection: Res<CharacterSelection>) {
     commands.spawn(Camera2d);
 
-    // Create two combatants
-    let fighter1 = Fighter {
-        character: Character::new(
-            "Aldric the Bold",
-            Attributes::new(8, 6, 7, 5, 6, 5, 5, 7, 4),
-            7, // weapon skill
-            5, // dodge skill
-            Weapon::long_sword(),
-            Armor::chain_mail(),
-        ),
-        is_player_one: true,
-    };
-
-    let fighter2 = Fighter {
-        character: Character::new(
-            "Grimwald Ironfist",
-            Attributes::new(9, 5, 8, 4, 5, 6, 4, 6, 3),
-            6, // weapon skill
-            4, // dodge skill
-            Weapon::two_handed_sword(),
-            Armor::leather(),
-        ),
-        is_player_one: false,
-    };
-
-    commands.spawn(fighter1);
-    commands.spawn(fighter2);
-
-    // UI Root
-    commands
-        .spawn(Node {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            flex_direction: FlexDirection::Column,
-            padding: UiRect::all(Val::Px(20.0)),
-            ..default()
-        })
-        .with_children(|parent| {
-            // Title
-            parent.spawn((
-                Text::new("=== DRAFT RPG COMBAT SIMULATOR ==="),
-                TextFont {
-                    font_size: 32.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.9, 0.9, 0.1)),
+    // Selection UI
+    if selection.in_selection {
+        commands
+            .spawn((
                 Node {
-                    margin: UiRect::bottom(Val::Px(10.0)),
-                    ..default()
-                },
-            ));
-
-            // Fighter Status Container
-            parent
-                .spawn(Node {
                     width: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::SpaceBetween,
-                    margin: UiRect::bottom(Val::Px(20.0)),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    // Fighter 1 Status
-                    parent.spawn((
-                        Text::new(""),
-                        TextFont {
-                            font_size: 16.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.8, 0.8, 0.8)),
-                        StatusText { fighter_id: 1 },
-                    ));
-
-                    // Fighter 2 Status
-                    parent.spawn((
-                        Text::new(""),
-                        TextFont {
-                            font_size: 16.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.8, 0.8, 0.8)),
-                        StatusText { fighter_id: 2 },
-                    ));
-                });
-
-            // Combat Log
-            parent.spawn((
-                Text::new(""),
-                TextFont {
-                    font_size: 18.0,
+                    height: Val::Percent(100.0),
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::all(Val::Px(20.0)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
-                TextColor(Color::srgb(1.0, 1.0, 1.0)),
-                Node {
-                    margin: UiRect::bottom(Val::Px(20.0)),
-                    ..default()
-                },
-                CombatLogText,
-            ));
+                SelectionUI,
+            ))
+            .with_children(|parent| {
+                parent.spawn((
+                    Text::new("=== CHARACTER SELECTION ==="),
+                    TextFont {
+                        font_size: 40.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.1)),
+                    Node {
+                        margin: UiRect::bottom(Val::Px(30.0)),
+                        ..default()
+                    },
+                ));
 
-            // Instructions
-            parent.spawn((
-                Text::new("Press [P] for Parry or [D] for Dodge\nPress [SPACE] to continue | [Q] to quit"),
-                TextFont {
-                    font_size: 20.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.2, 0.8, 1.0)),
-                InstructionText,
-            ));
-        });
+                parent.spawn((
+                    Text::new("Loading combatants..."),
+                    TextFont {
+                        font_size: 18.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                    SelectionText,
+                ));
+            });
+    } else {
+        // Combat UI Root
+        commands
+            .spawn(Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                padding: UiRect::all(Val::Px(20.0)),
+                ..default()
+            })
+            .with_children(|parent| {
+                // Title
+                parent.spawn((
+                    Text::new("=== DRAFT RPG COMBAT SIMULATOR ==="),
+                    TextFont {
+                        font_size: 32.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.9, 0.9, 0.1)),
+                    Node {
+                        margin: UiRect::bottom(Val::Px(10.0)),
+                        ..default()
+                    },
+                ));
+
+                // Fighter Status Container
+                parent
+                    .spawn(Node {
+                        width: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Row,
+                        justify_content: JustifyContent::SpaceBetween,
+                        margin: UiRect::bottom(Val::Px(20.0)),
+                        ..default()
+                    })
+                    .with_children(|parent| {
+                        // Fighter 1 Status
+                        parent.spawn((
+                            Text::new(""),
+                            TextFont {
+                                font_size: 16.0,
+                                ..default()
+                            },
+                            TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                            StatusText { fighter_id: 1 },
+                        ));
+
+                        // Fighter 2 Status
+                        parent.spawn((
+                            Text::new(""),
+                            TextFont {
+                                font_size: 16.0,
+                                ..default()
+                            },
+                            TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                            StatusText { fighter_id: 2 },
+                        ));
+                    });
+
+                // Combat Log
+                parent.spawn((
+                    Text::new(""),
+                    TextFont {
+                        font_size: 18.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                    Node {
+                        margin: UiRect::bottom(Val::Px(20.0)),
+                        ..default()
+                    },
+                    CombatLogText,
+                ));
+
+                // Instructions
+                parent.spawn((
+                    Text::new("Press [P] for Parry or [D] for Dodge\nPress [SPACE] to continue | [Q] to quit"),
+                    TextFont {
+                        font_size: 20.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.2, 0.8, 1.0)),
+                    InstructionText,
+                ));
+            });
+    }
 }
 
 fn handle_input(
@@ -182,7 +250,12 @@ fn handle_input(
     mut combat_state: ResMut<CombatState>,
     mut fighters: Query<&mut Fighter>,
     mut app_exit_events: EventWriter<AppExit>,
+    selection: Res<CharacterSelection>,
 ) {
+    // Don't handle combat input if still in selection
+    if selection.in_selection {
+        return;
+    }
     if combat_state.game_over {
         if keyboard.just_pressed(KeyCode::KeyQ) || keyboard.just_pressed(KeyCode::Escape) {
             app_exit_events.send(AppExit::Success);
@@ -403,5 +476,203 @@ fn update_ui(
         } else if combat_state.paused {
             **instruction_text = "Press [SPACE] to continue to next round | [Q] to quit".to_string();
         }
+    }
+}
+
+fn handle_selection_input(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut selection: ResMut<CharacterSelection>,
+    mut commands: Commands,
+    selection_ui: Query<Entity, With<SelectionUI>>,
+) {
+    if !selection.in_selection {
+        return;
+    }
+
+    // Number keys 1-9 and 0 for selecting fighters
+    let number_keys = [
+        (KeyCode::Digit1, 0), (KeyCode::Digit2, 1), (KeyCode::Digit3, 2),
+        (KeyCode::Digit4, 3), (KeyCode::Digit5, 4), (KeyCode::Digit6, 5),
+        (KeyCode::Digit7, 6), (KeyCode::Digit8, 7), (KeyCode::Digit9, 8),
+        (KeyCode::Digit0, 9),
+    ];
+
+    for (key, index) in number_keys {
+        if keyboard.just_pressed(key) && index < selection.available_combatants.len() {
+            if selection.selected_fighter1.is_none() {
+                selection.selected_fighter1 = Some(index);
+            } else if selection.selected_fighter2.is_none() && Some(index) != selection.selected_fighter1 {
+                selection.selected_fighter2 = Some(index);
+            }
+        }
+    }
+
+    // Enter to start combat when both fighters are selected
+    if keyboard.just_pressed(KeyCode::Enter) {
+        if let (Some(idx1), Some(idx2)) = (selection.selected_fighter1, selection.selected_fighter2) {
+            // Load fighters from JSON
+            let name1 = &selection.available_combatants[idx1];
+            let name2 = &selection.available_combatants[idx2];
+
+            if let (Ok(char1), Ok(char2)) = (
+                load_character_from_file(name1),
+                load_character_from_file(name2),
+            ) {
+                // Despawn selection UI
+                for entity in selection_ui.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+
+                // Spawn fighters
+                commands.spawn(Fighter {
+                    character: char1,
+                    is_player_one: true,
+                });
+                commands.spawn(Fighter {
+                    character: char2,
+                    is_player_one: false,
+                });
+
+                // Switch to combat mode
+                selection.in_selection = false;
+
+                // Spawn combat UI
+                spawn_combat_ui(&mut commands);
+            }
+        }
+    }
+
+    // Backspace to clear selections
+    if keyboard.just_pressed(KeyCode::Backspace) {
+        selection.selected_fighter2 = None;
+        if selection.selected_fighter1.is_some() && selection.selected_fighter2.is_none() {
+            selection.selected_fighter1 = None;
+        }
+    }
+}
+
+fn spawn_combat_ui(commands: &mut Commands) {
+    commands
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            padding: UiRect::all(Val::Px(20.0)),
+            ..default()
+        })
+        .with_children(|parent| {
+            // Title
+            parent.spawn((
+                Text::new("=== DRAFT RPG COMBAT SIMULATOR ==="),
+                TextFont {
+                    font_size: 32.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.9, 0.9, 0.1)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(10.0)),
+                    ..default()
+                },
+            ));
+
+            // Fighter Status Container
+            parent
+                .spawn(Node {
+                    width: Val::Percent(100.0),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    margin: UiRect::bottom(Val::Px(20.0)),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // Fighter 1 Status
+                    parent.spawn((
+                        Text::new(""),
+                        TextFont {
+                            font_size: 16.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                        StatusText { fighter_id: 1 },
+                    ));
+
+                    // Fighter 2 Status
+                    parent.spawn((
+                        Text::new(""),
+                        TextFont {
+                            font_size: 16.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                        StatusText { fighter_id: 2 },
+                    ));
+                });
+
+            // Combat Log
+            parent.spawn((
+                Text::new(""),
+                TextFont {
+                    font_size: 18.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(1.0, 1.0, 1.0)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(20.0)),
+                    ..default()
+                },
+                CombatLogText,
+            ));
+
+            // Instructions
+            parent.spawn((
+                Text::new("Press [P] for Parry or [D] for Dodge\nPress [SPACE] to continue | [Q] to quit"),
+                TextFont {
+                    font_size: 20.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.2, 0.8, 1.0)),
+                InstructionText,
+            ));
+        });
+}
+
+fn update_selection_ui(
+    selection: Res<CharacterSelection>,
+    mut query: Query<&mut Text, With<SelectionText>>,
+) {
+    if !selection.in_selection {
+        return;
+    }
+
+    for mut text in query.iter_mut() {
+        let mut display = String::from("=== CHARACTER SELECTION ===\n\n");
+        display.push_str("Select two combatants to fight:\n\n");
+
+        // Only show first 10 combatants (keys 1-9, 0)
+        for (i, name) in selection.available_combatants.iter().enumerate().take(10) {
+            let num = if i == 9 { 0 } else { i + 1 };
+            let marker = if Some(i) == selection.selected_fighter1 {
+                " [FIGHTER 1] ✓"
+            } else if Some(i) == selection.selected_fighter2 {
+                " [FIGHTER 2] ✓"
+            } else {
+                ""
+            };
+            display.push_str(&format!("[{}] {}{}\n", num, name, marker));
+        }
+
+        display.push_str("\n");
+
+        if selection.selected_fighter1.is_some() && selection.selected_fighter2.is_some() {
+            display.push_str("Press [ENTER] to start combat\n");
+        } else if selection.selected_fighter1.is_some() {
+            display.push_str("Select second fighter\n");
+        } else {
+            display.push_str("Select first fighter\n");
+        }
+
+        display.push_str("Press [BACKSPACE] to clear selection\n");
+
+        **text = display;
     }
 }

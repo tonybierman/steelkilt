@@ -744,7 +744,7 @@ fn spawn_combat_ui(commands: &mut Commands) {
 
 fn handle_combat_input(
     keyboard: Res<ButtonInput<KeyCode>>,
-    game_state: Res<GameState>,
+    mut game_state: ResMut<GameState>,
     mut combat_state: ResMut<CombatState>,
     mut fighters: Query<(Entity, &mut Fighter)>,
     mut commands: Commands,
@@ -764,6 +764,7 @@ fn handle_combat_input(
                 commands.entity(entity).despawn();
             }
             *combat_state = CombatState::default();
+            game_state.transition_to(GameStateEnum::MainMenu);
             spawn_main_menu_ui(&mut commands);
         }
         return;

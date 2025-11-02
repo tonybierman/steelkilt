@@ -268,6 +268,8 @@ pub struct Character {
     pub weapon: Weapon,
     pub armor: Armor,
     pub wounds: Wounds,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub magic: Option<modules::magic::MagicUser>,
 }
 
 impl Character {
@@ -287,6 +289,28 @@ impl Character {
             weapon,
             armor,
             wounds: Wounds::new(),
+            magic: None,
+        }
+    }
+
+    pub fn new_with_magic(
+        name: &str,
+        attributes: Attributes,
+        weapon_skill: i32,
+        dodge_skill: i32,
+        weapon: Weapon,
+        armor: Armor,
+        magic: modules::magic::MagicUser,
+    ) -> Self {
+        Self {
+            name: name.to_string(),
+            attributes,
+            weapon_skill: weapon_skill.clamp(0, 10),
+            dodge_skill: dodge_skill.clamp(0, 10),
+            weapon,
+            armor,
+            wounds: Wounds::new(),
+            magic: Some(magic),
         }
     }
 

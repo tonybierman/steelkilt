@@ -28,5 +28,42 @@
     "light": 0,
     "severe": 0,
     "critical": 0
+  },
+  "magic": {
+    "empathy": 9,
+    "exhaustion_points": 0,
+    "lores": {
+      "Divination": {
+        "branch": "Divination",
+        "level": 5,
+        "empathy_attribute": 9
+      }
+    },
+    "spells": {
+      "Detect Magic": {
+        "spell": {
+          "name": "Detect Magic",
+          "branch": "Divination",
+          "difficulty": "Easy",
+          "preparation_time": 5,
+          "casting_time": 1,
+          "range": {"Short": 10},
+          "duration": {"Minutes": 10}
+        },
+        "skill_level": 4
+      },
+      "True Seeing": {
+        "spell": {
+          "name": "True Seeing",
+          "branch": "Divination",
+          "difficulty": "Hard",
+          "preparation_time": 30,
+          "casting_time": 2,
+          "range": "Personal",
+          "duration": {"Hours": 1}
+        },
+        "skill_level": 3
+      }
+    }
   }
 }

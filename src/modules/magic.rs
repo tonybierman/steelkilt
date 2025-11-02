@@ -3,8 +3,12 @@
 use std::collections::HashMap;
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Branches of magic as defined in Draft RPG
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum MagicBranch {
     Alchemy,        // Constitution and alteration of matter
     Animation,      // Healing wounds, modifying physical abilities
@@ -52,6 +56,7 @@ impl fmt::Display for MagicBranch {
 
 /// Difficulty of learning a branch's lore
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum LoreDifficulty {
     Normal,   // 1x cost
     Hard,     // 2x cost
@@ -70,6 +75,7 @@ impl LoreDifficulty {
 
 /// A spell within a magic branch
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Spell {
     pub name: String,
     pub branch: MagicBranch,
@@ -81,6 +87,7 @@ pub struct Spell {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum SpellDifficulty {
     Easy,
     Normal,
@@ -98,6 +105,7 @@ impl SpellDifficulty {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum SpellRange {
     Personal,
     Touch,
@@ -108,6 +116,7 @@ pub enum SpellRange {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum SpellDuration {
     Instant,
     Rounds(i32),
@@ -118,6 +127,7 @@ pub enum SpellDuration {
 
 /// Lore knowledge in a branch of magic
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MagicLore {
     pub branch: MagicBranch,
     pub level: i32,
@@ -162,6 +172,7 @@ impl MagicLore {
 
 /// A learned spell with skill level
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct LearnedSpell {
     pub spell: Spell,
     pub skill_level: i32,
@@ -169,6 +180,7 @@ pub struct LearnedSpell {
 
 /// Manages a character's magic capabilities
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MagicUser {
     pub lores: HashMap<MagicBranch, MagicLore>,
     pub spells: HashMap<String, LearnedSpell>,
@@ -293,6 +305,7 @@ impl MagicUser {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ExhaustionLevel {
     None,
     Light,
@@ -301,6 +314,7 @@ pub enum ExhaustionLevel {
 }
 
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CastingResult {
     pub spell_name: String,
     pub success: bool,

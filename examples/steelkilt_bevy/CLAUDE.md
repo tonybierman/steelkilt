@@ -167,6 +167,60 @@ cargo run
 
 The project includes 12 pre-made combatants:
 - **Warriors**: Aldric, Grimwald, Thora, Kael, Ragnar, Garrick, Zephyr, Elara
-- **Mages**: Mira, Brother Aldwyn, Sylvana, Morgana
+- **Mages**: Mira (with Divination spells), Brother Aldwyn, Sylvana, Morgana
 
 Each has unique stat distributions optimized for different fighting styles.
+
+### Magic System
+
+The application supports the Draft RPG magic system from Chapter 5. Characters can have:
+- **Lores**: Knowledge in magic branches (Divination, Elementalism, Animation, etc.)
+- **Spells**: Learned spells with skill levels
+- **Exhaustion**: Magical exhaustion from casting spells
+
+#### Magic in Combat
+
+When a magic-using combatant is selected, their status display shows:
+- Number of spells known
+- Current exhaustion points
+- Exhaustion level (None/Light/Severe/Critical)
+
+#### Adding Magic to Combatants
+
+To create a magic-using combatant, add a `magic` field to the JSON file:
+
+```json
+{
+  "name": "Example Mage",
+  ...other fields...
+  "magic": {
+    "empathy": 9,
+    "exhaustion_points": 0,
+    "lores": {
+      "Divination": {
+        "branch": "Divination",
+        "level": 5,
+        "empathy_attribute": 9
+      }
+    },
+    "spells": {
+      "Detect Magic": {
+        "spell": {
+          "name": "Detect Magic",
+          "branch": "Divination",
+          "difficulty": "Easy",
+          "preparation_time": 5,
+          "casting_time": 1,
+          "range": {"Short": 10},
+          "duration": {"Minutes": 10}
+        },
+        "skill_level": 4
+      }
+    }
+  }
+}
+```
+
+See `combatants/mira_starweaver.json` for a complete example.
+
+**Note**: Spell casting during combat is not yet implemented. Currently, magic stats are displayed for informational purposes.

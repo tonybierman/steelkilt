@@ -989,8 +989,8 @@ fn update_combat_ui(
                     "HEALTHY"
                 };
 
-                **text = format!(
-                    "{}\n{}\nWeapon: {} (Dmg: {})\nArmor: {} (Prot: {})\nWeapon Skill: {} | Dodge: {}\nWounds: Light:{} Severe:{} Critical:{}\nStatus: {}",
+                let mut display = format!(
+                    "{}\n{}\nWeapon: {} (Dmg: {})\nArmor: {} (Prot: {})\nWeapon Skill: {} | Dodge: {}\nWounds: Light:{} Severe:{} Critical:{}",
                     c.name,
                     "─".repeat(30),
                     c.weapon.name,
@@ -1001,9 +1001,21 @@ fn update_combat_ui(
                     c.dodge_skill,
                     c.wounds.light,
                     c.wounds.severe,
-                    c.wounds.critical,
-                    status_str
+                    c.wounds.critical
                 );
+
+                // Add magic info if character has magic
+                if let Some(ref magic) = c.magic {
+                    display.push_str(&format!(
+                        "\nSpells: {} | Exhaustion: {} ({:?})",
+                        magic.spells.len(),
+                        magic.exhaustion_points,
+                        magic.exhaustion_level()
+                    ));
+                }
+
+                display.push_str(&format!("\nStatus: {}", status_str));
+                **text = display;
             }
         }
     }

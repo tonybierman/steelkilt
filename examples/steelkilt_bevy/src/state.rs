@@ -70,9 +70,9 @@ impl Default for ManagementState {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Distance {
-    Close,   // Within point blank range
-    Medium,  // Beyond point blank, within max range
-    Long,    // Near max range
+    Close,  // Within point blank range
+    Medium, // Beyond point blank, within max range
+    Long,   // Near max range
 }
 
 impl Distance {
@@ -93,11 +93,11 @@ pub enum CombatMode {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum RangedAttackPhase {
-    ChoosingMode,      // Deciding whether to use ranged or melee
-    Preparing,         // Drawing and readying weapon
-    Aiming,            // Optional aiming phase
-    ReadyToFire,       // Can fire this round
-    Fired,             // Already fired this round
+    ChoosingMode, // Deciding whether to use ranged or melee
+    Preparing,    // Drawing and readying weapon
+    Aiming,       // Optional aiming phase
+    ReadyToFire,  // Can fire this round
+    Fired,        // Already fired this round
 }
 
 #[derive(Resource)]
@@ -131,7 +131,7 @@ impl Default for CombatState {
             selected_fighter2: None,
             selection_cursor: 0,
             combat_mode: CombatMode::Melee,
-            distance: Distance::Close,  // Start in melee range
+            distance: Distance::Close, // Start in melee range
             ranged_phase: None,
             aiming_rounds: 0,
         }

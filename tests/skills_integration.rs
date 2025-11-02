@@ -35,7 +35,10 @@ fn test_easy_skill_learning() {
     let mut dodge = Skill::new("Dodge", 7, SkillDifficulty::Easy);
     dodge.level = 0;
     let cost = dodge.calculate_upgrade_cost(0, 7);
-    assert_eq!(cost, 1, "Easy skill up to attribute should cost 1 point total");
+    assert_eq!(
+        cost, 1,
+        "Easy skill up to attribute should cost 1 point total"
+    );
 
     skill_set.add_skill(Skill::new("Dodge", 7, SkillDifficulty::Easy));
 
@@ -156,8 +159,7 @@ fn test_skill_prerequisites() {
 
     // Advanced technique requires Sword at level 5
     skill_set.add_skill(
-        Skill::new("Master Strike", 5, SkillDifficulty::Hard)
-            .with_prerequisite("Sword", 5),
+        Skill::new("Master Strike", 5, SkillDifficulty::Hard).with_prerequisite("Sword", 5),
     );
 
     // Try to raise advanced skill without prerequisite

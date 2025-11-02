@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use steelkilt::Character;
 use steelkilt::modules::ranged_combat::RangedAttackState;
+use steelkilt::Character;
 
 // ===== GAME ENTITIES =====
 

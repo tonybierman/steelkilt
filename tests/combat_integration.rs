@@ -4,8 +4,8 @@
 //! when used as an external consumer would use it.
 
 use steelkilt::{
-    Armor, Attributes, Character, DefenseAction, Weapon, WeaponImpact, WoundLevel, Wounds,
-    combat_round,
+    combat_round, Armor, Attributes, Character, DefenseAction, Weapon, WeaponImpact, WoundLevel,
+    Wounds,
 };
 
 /// Helper to create a basic fighter for testing
@@ -86,7 +86,8 @@ fn test_wound_accumulation() {
         }
     }
 
-    let final_wounds = weak_defender.wounds.light + weak_defender.wounds.severe + weak_defender.wounds.critical;
+    let final_wounds =
+        weak_defender.wounds.light + weak_defender.wounds.severe + weak_defender.wounds.critical;
 
     // Verify that wounds were accumulated (in most cases)
     assert!(
@@ -190,7 +191,10 @@ fn test_armor_reduces_damage() {
     // Due to randomness, we just verify combat occurred
     // Both may die, but wounds should have been inflicted
     let total_wounds = unarmored_wounds + armored_wounds;
-    assert!(total_wounds > 0, "Some wounds should have been inflicted during combat");
+    assert!(
+        total_wounds > 0,
+        "Some wounds should have been inflicted during combat"
+    );
 }
 
 #[test]
@@ -208,23 +212,9 @@ fn test_character_creation_with_different_attributes() {
         Armor::none(),
     );
 
-    let agile = Character::new(
-        "Agile",
-        high_dex,
-        5,
-        5,
-        Weapon::long_sword(),
-        Armor::none(),
-    );
+    let agile = Character::new("Agile", high_dex, 5, 5, Weapon::long_sword(), Armor::none());
 
-    let tough = Character::new(
-        "Tough",
-        high_con,
-        5,
-        5,
-        Weapon::long_sword(),
-        Armor::none(),
-    );
+    let tough = Character::new("Tough", high_con, 5, 5, Weapon::long_sword(), Armor::none());
 
     assert_eq!(strong.attributes.strength, 10);
     assert_eq!(agile.attributes.dexterity, 10);
@@ -301,7 +291,8 @@ fn test_combat_result_consistency() {
 
     // If hit, defender should have wounds or be dead
     if result.hit && result.damage > 0 {
-        let total_wounds = defender.wounds.light + defender.wounds.severe + defender.wounds.critical;
+        let total_wounds =
+            defender.wounds.light + defender.wounds.severe + defender.wounds.critical;
         assert!(
             total_wounds > 0 || !defender.is_alive(),
             "Hit with damage should cause wounds or death"

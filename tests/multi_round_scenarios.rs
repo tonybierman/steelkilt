@@ -3,13 +3,15 @@
 //! These tests verify that multiple systems work together correctly
 //! in realistic combat situations.
 
-use steelkilt::{
-    Armor, Attributes, Character, DefenseAction, Weapon, WeaponImpact, WoundLevel, combat_round,
-};
 use steelkilt::modules::exhaustion::Exhaustion;
-use steelkilt::modules::magic::{MagicBranch, MagicUser, Spell, SpellDifficulty, SpellDuration, SpellRange};
+use steelkilt::modules::magic::{
+    MagicBranch, MagicUser, Spell, SpellDifficulty, SpellDuration, SpellRange,
+};
 use steelkilt::modules::ranged_combat::RangedWeapon;
 use steelkilt::modules::skills::{Skill, SkillDifficulty, SkillSet};
+use steelkilt::{
+    combat_round, Armor, Attributes, Character, DefenseAction, Weapon, WeaponImpact, WoundLevel,
+};
 
 /// Helper to create a warrior
 fn create_warrior(name: &str) -> Character {
@@ -17,8 +19,8 @@ fn create_warrior(name: &str) -> Character {
     Character::new(
         name,
         attributes,
-        8,  // weapon_skill
-        6,  // dodge_skill
+        8, // weapon_skill
+        6, // dodge_skill
         Weapon::long_sword(),
         Armor::chain_mail(),
     )
@@ -30,8 +32,8 @@ fn create_duelist(name: &str) -> Character {
     Character::new(
         name,
         attributes,
-        7,  // weapon_skill
-        9,  // dodge_skill (high dodge)
+        7, // weapon_skill
+        9, // dodge_skill (high dodge)
         Weapon::new("Rapier", WeaponImpact::Small),
         Armor::leather(),
     )
@@ -89,7 +91,10 @@ fn test_wound_accumulation_affects_combat() {
     weak.wounds.add_wound(WoundLevel::Severe);
 
     let weak_initial_penalty = weak.wounds.movement_penalty();
-    assert!(weak_initial_penalty < 0, "Wounded fighter should have penalties");
+    assert!(
+        weak_initial_penalty < 0,
+        "Wounded fighter should have penalties"
+    );
 
     // Run several rounds
     for _ in 0..5 {
@@ -146,10 +151,14 @@ fn test_armor_difference_affects_outcome() {
 
     // Unarmored should have taken more damage (in most cases)
     let armored_wounds = armored.wounds.light + armored.wounds.severe + armored.wounds.critical;
-    let unarmored_wounds = unarmored.wounds.light + unarmored.wounds.severe + unarmored.wounds.critical;
+    let unarmored_wounds =
+        unarmored.wounds.light + unarmored.wounds.severe + unarmored.wounds.critical;
 
     // Due to randomness, we can't guarantee this every time, but verify both participated
-    assert!(armored_wounds > 0 || unarmored_wounds > 0, "Some damage should have occurred");
+    assert!(
+        armored_wounds > 0 || unarmored_wounds > 0,
+        "Some damage should have occurred"
+    );
 }
 
 #[test]
@@ -195,7 +204,10 @@ fn test_exhaustion_in_extended_combat() {
     exhaustion.add_points(stamina + 1); // Exceed threshold for Light exhaustion
 
     assert!(exhaustion.points > 0);
-    assert!(exhaustion.penalty() < 0, "Exhaustion should cause penalties");
+    assert!(
+        exhaustion.penalty() < 0,
+        "Exhaustion should cause penalties"
+    );
 
     // Recovery over time
     let initial_exhaustion = exhaustion.points;
@@ -252,7 +264,10 @@ fn test_wizard_in_combat_scenario() {
 
     // Should have accumulated significant exhaustion
     // (Each successful Normal spell adds 2 points, so 4 casts = 8 points minimum)
-    assert!(wizard_magic.exhaustion_points > 0, "Should have accumulated exhaustion points");
+    assert!(
+        wizard_magic.exhaustion_points > 0,
+        "Should have accumulated exhaustion points"
+    );
 }
 
 #[test]
@@ -355,7 +370,11 @@ fn test_mixed_combat_styles() {
 
     // Melee fighter closes and engages
     for _ in 0..3 {
-        combat_round(&mut melee_fighter, &mut ranged_fighter, DefenseAction::Dodge);
+        combat_round(
+            &mut melee_fighter,
+            &mut ranged_fighter,
+            DefenseAction::Dodge,
+        );
         if !ranged_fighter.is_alive() {
             break;
         }

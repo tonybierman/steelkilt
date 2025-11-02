@@ -46,7 +46,11 @@ fn test_learn_spell_with_sufficient_lore() {
 
     magic_user.add_lore(MagicBranch::Divination, 5);
 
-    let spell = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
+    let spell = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
 
     let result = magic_user.learn_spell(spell, 3);
     assert!(result.is_ok());
@@ -80,7 +84,11 @@ fn test_learn_spell_with_insufficient_lore() {
 
     magic_user.add_lore(MagicBranch::Divination, 3);
 
-    let spell = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
+    let spell = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
 
     // Try to learn spell at level 5, but lore is only 3
     let result = magic_user.learn_spell(spell, 5);
@@ -104,7 +112,11 @@ fn test_cast_spell_success() {
 
     magic_user.add_lore(MagicBranch::Divination, 5);
 
-    let spell = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
+    let spell = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
     magic_user.learn_spell(spell, 4).unwrap();
 
     // Easy spell has target 8
@@ -129,11 +141,7 @@ fn test_cast_spell_failure() {
 
     magic_user.add_lore(MagicBranch::Elementalism, 3);
 
-    let spell = create_test_spell(
-        "Fireball",
-        MagicBranch::Elementalism,
-        SpellDifficulty::Hard,
-    );
+    let spell = create_test_spell("Fireball", MagicBranch::Elementalism, SpellDifficulty::Hard);
     magic_user.learn_spell(spell, 2).unwrap();
 
     // Hard spell has target 12
@@ -182,10 +190,7 @@ fn test_magic_branch_lore_difficulties() {
     );
 
     // Hard difficulty branches
-    assert_eq!(
-        MagicBranch::Alchemy.lore_difficulty().cost_multiplier(),
-        2
-    );
+    assert_eq!(MagicBranch::Alchemy.lore_difficulty().cost_multiplier(), 2);
     assert_eq!(
         MagicBranch::Animation.lore_difficulty().cost_multiplier(),
         2
@@ -205,7 +210,9 @@ fn test_magic_branch_lore_difficulties() {
         3
     );
     assert_eq!(
-        MagicBranch::Elementalism.lore_difficulty().cost_multiplier(),
+        MagicBranch::Elementalism
+            .lore_difficulty()
+            .cost_multiplier(),
         3
     );
     assert_eq!(
@@ -226,7 +233,11 @@ fn test_exhaustion_accumulation() {
 
     magic_user.add_lore(MagicBranch::Divination, 6);
 
-    let easy_spell = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
+    let easy_spell = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
     magic_user.learn_spell(easy_spell, 5).unwrap();
 
     let initial_exhaustion = magic_user.exhaustion_points;
@@ -247,8 +258,16 @@ fn test_multiple_spells_multiple_branches() {
     magic_user.add_lore(MagicBranch::Animation, 4);
 
     // Learn spells from different branches
-    let detect_magic = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
-    let heal_wounds = create_test_spell("Heal Wounds", MagicBranch::Animation, SpellDifficulty::Normal);
+    let detect_magic = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
+    let heal_wounds = create_test_spell(
+        "Heal Wounds",
+        MagicBranch::Animation,
+        SpellDifficulty::Normal,
+    );
 
     magic_user.learn_spell(detect_magic, 4).unwrap();
     magic_user.learn_spell(heal_wounds, 3).unwrap();
@@ -270,7 +289,11 @@ fn test_exhaustion_recovery() {
     let mut magic_user = MagicUser::new(8);
 
     magic_user.add_lore(MagicBranch::Divination, 5);
-    let spell = create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy);
+    let spell = create_test_spell(
+        "Detect Magic",
+        MagicBranch::Divination,
+        SpellDifficulty::Easy,
+    );
     magic_user.learn_spell(spell, 4).unwrap();
 
     // Cast spell to gain exhaustion
@@ -289,31 +312,19 @@ fn test_exhaustion_level_thresholds() {
     let mut magic_user = MagicUser::new(8);
 
     // No exhaustion
-    assert_eq!(
-        format!("{:?}", magic_user.exhaustion_level()),
-        "None"
-    );
+    assert_eq!(format!("{:?}", magic_user.exhaustion_level()), "None");
 
     // Light exhaustion (> empathy)
     magic_user.exhaustion_points = magic_user.empathy + 1;
-    assert_eq!(
-        format!("{:?}", magic_user.exhaustion_level()),
-        "Light"
-    );
+    assert_eq!(format!("{:?}", magic_user.exhaustion_level()), "Light");
 
     // Severe exhaustion (>= empathy * 2)
     magic_user.exhaustion_points = magic_user.empathy * 2;
-    assert_eq!(
-        format!("{:?}", magic_user.exhaustion_level()),
-        "Severe"
-    );
+    assert_eq!(format!("{:?}", magic_user.exhaustion_level()), "Severe");
 
     // Critical exhaustion (>= empathy * 3)
     magic_user.exhaustion_points = magic_user.empathy * 3;
-    assert_eq!(
-        format!("{:?}", magic_user.exhaustion_level()),
-        "Critical"
-    );
+    assert_eq!(format!("{:?}", magic_user.exhaustion_level()), "Critical");
 }
 
 #[test]
@@ -406,14 +417,22 @@ fn test_complete_wizard_scenario() {
     // Learn several Divination spells
     wizard
         .learn_spell(
-            create_test_spell("Detect Magic", MagicBranch::Divination, SpellDifficulty::Easy),
+            create_test_spell(
+                "Detect Magic",
+                MagicBranch::Divination,
+                SpellDifficulty::Easy,
+            ),
             4,
         )
         .unwrap();
 
     wizard
         .learn_spell(
-            create_test_spell("Read Thoughts", MagicBranch::Divination, SpellDifficulty::Normal),
+            create_test_spell(
+                "Read Thoughts",
+                MagicBranch::Divination,
+                SpellDifficulty::Normal,
+            ),
             3,
         )
         .unwrap();

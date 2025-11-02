@@ -8,3 +8,4 @@ bevy = "0.15"
 steelkilt = { path = "../..", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+rand = "0.8"

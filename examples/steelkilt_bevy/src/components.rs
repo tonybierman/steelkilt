@@ -1,12 +1,14 @@
 use bevy::prelude::*;
 use steelkilt::Character;
+use steelkilt::modules::ranged_combat::RangedAttackState;
 
 // ===== GAME ENTITIES =====
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Fighter {
     pub character: Character,
     pub is_player_one: bool,
+    pub ranged_state: Option<RangedAttackState>,
 }
 
 // ===== UI MARKERS =====

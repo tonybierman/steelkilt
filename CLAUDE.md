@@ -89,7 +89,7 @@ This library implements **specific sections** of the Draft 0.4 rulebook. When mo
 - Skills are **attribute-capped**: costs increase beyond attribute score (Section 3.13)
 - Magic requires **lore prerequisites**: can't learn spells without branch lore (Chapter 5)
 
-The README.md documents which Draft RPG sections each feature implements. Maintain this mapping when adding features.
+The draft.pdf is the Draft 0.4 rulebook. The README.md documents which Draft RPG sections each feature implements. Maintain this mapping when adding features.
 
 ### Combat Damage Flow
 

@@ -68,6 +68,38 @@ impl Default for ManagementState {
 
 // ===== COMBAT STATE =====
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Distance {
+    Close,   // Within point blank range
+    Medium,  // Beyond point blank, within max range
+    Long,    // Near max range
+}
+
+impl Distance {
+    pub fn meters(&self) -> i32 {
+        match self {
+            Distance::Close => 15,
+            Distance::Medium => 40,
+            Distance::Long => 80,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum CombatMode {
+    Melee,
+    Ranged,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum RangedAttackPhase {
+    ChoosingMode,      // Deciding whether to use ranged or melee
+    Preparing,         // Drawing and readying weapon
+    Aiming,            // Optional aiming phase
+    ReadyToFire,       // Can fire this round
+    Fired,             // Already fired this round
+}
+
 #[derive(Resource)]
 pub struct CombatState {
     pub round: u32,
@@ -79,6 +111,11 @@ pub struct CombatState {
     pub selected_fighter1: Option<usize>,
     pub selected_fighter2: Option<usize>,
     pub selection_cursor: usize,
+    // Ranged combat additions
+    pub combat_mode: CombatMode,
+    pub distance: Distance,
+    pub ranged_phase: Option<RangedAttackPhase>,
+    pub aiming_rounds: i32,
 }
 
 impl Default for CombatState {
@@ -93,6 +130,10 @@ impl Default for CombatState {
             selected_fighter1: None,
             selected_fighter2: None,
             selection_cursor: 0,
+            combat_mode: CombatMode::Melee,
+            distance: Distance::Close,  // Start in melee range
+            ranged_phase: None,
+            aiming_rounds: 0,
         }
     }
 }

@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-use steelkilt::{combat_round, DefenseAction};
+use steelkilt::{combat_round, DefenseAction, WoundLevel};
+use rand::Rng;
 
 use crate::components::{CombatLogText, CombatUI, Fighter, InstructionText, StatusText};
 use crate::main_menu::spawn_main_menu_ui;
-use crate::state::{CombatState, GameState, GameStateEnum};
+use crate::state::{CombatState, CombatMode, Distance, GameState, GameStateEnum, RangedAttackPhase};
 
 /// Spawns the combat UI hierarchy.
 pub fn spawn_combat_ui(commands: &mut Commands) {
@@ -96,6 +97,71 @@ pub fn spawn_combat_ui(commands: &mut Commands) {
         });
 }
 
+/// Executes a ranged attack from attacker to defender
+fn execute_ranged_attack(
+    attacker: &Fighter,
+    defender: &Fighter,
+    combat_state: &CombatState,
+) -> (bool, i32, String) {
+    let ranged_weapon = match &attacker.character.ranged_weapon {
+        Some(w) => w,
+        None => return (false, 0, "No ranged weapon equipped!".to_string()),
+    };
+
+    let attacker_skill = attacker.character.ranged_skill.unwrap_or(0);
+    let distance = combat_state.distance.meters();
+
+    // Calculate modifiers
+    let distance_mod = ranged_weapon.distance_modifier(distance);
+    let aiming_bonus = combat_state.aiming_rounds.min(1); // Max +1 from aiming
+    let total_modifier = distance_mod + aiming_bonus;
+
+    // Check if target is in range
+    if !ranged_weapon.in_range(distance) {
+        return (false, 0, format!("Target out of range! ({}m > {}m max)", distance, ranged_weapon.max_range));
+    }
+
+    // Attacker rolls
+    let mut rng = rand::thread_rng();
+    let attack_roll_dice = rng.gen_range(1..=10);
+    let attack_total = attacker_skill + attack_roll_dice + total_modifier;
+
+    // Defender can only dodge ranged attacks (parrying is very difficult)
+    let defender_dodge = defender.character.dodge_skill;
+    let defense_roll_dice = rng.gen_range(1..=10);
+    let defense_total = defender_dodge + defense_roll_dice;
+
+    let mut log_msg = format!(
+        "Ranged Attack: {} fires {} at {}m\n  Attack: {} (skill {}) + d10({}) + modifiers({}) = {}\n  Defense: {} dodges with d10({}) + dodge({}) = {}",
+        attacker.character.name,
+        ranged_weapon.name,
+        distance,
+        attacker.character.name,
+        attacker_skill,
+        attack_roll_dice,
+        total_modifier,
+        attack_total,
+        defender.character.name,
+        defense_roll_dice,
+        defender_dodge,
+        defense_total
+    );
+
+    // Determine if hit
+    if attack_total > defense_total {
+        let base_damage = attack_total - defense_total;
+        let weapon_damage = ranged_weapon.damage;
+        let armor_protection = defender.character.armor.protection;
+        let total_damage = (base_damage + weapon_damage - armor_protection).max(0);
+
+        log_msg.push_str(&format!("\n  HIT! {} damage dealt", total_damage));
+        (true, total_damage, log_msg)
+    } else {
+        log_msg.push_str("\n  MISS! Target dodged successfully");
+        (false, 0, log_msg)
+    }
+}
+
 /// Handles combat keyboard input.
 pub fn handle_combat_input(
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -134,8 +200,176 @@ pub fn handle_combat_input(
         return;
     }
 
-    // Handle defense choice when waiting
+    // Handle combat mode selection (R for ranged, M for melee)
     if combat_state.waiting_for_defense {
+        // Check if current attacker has ranged weapon
+        let attacker_has_ranged = fighters.iter().find(|(_, f)| {
+            (combat_state.current_attacker == 1 && f.is_player_one)
+                || (combat_state.current_attacker == 2 && !f.is_player_one)
+        }).map(|(_, f)| f.character.ranged_weapon.is_some()).unwrap_or(false);
+
+        // Allow mode selection if attacker has ranged weapon
+        if attacker_has_ranged {
+            if keyboard.just_pressed(KeyCode::KeyR) {
+                let fighter_name = if combat_state.current_attacker == 1 { "Fighter 1" } else { "Fighter 2" };
+                combat_state.combat_mode = CombatMode::Ranged;
+                combat_state.ranged_phase = Some(RangedAttackPhase::Preparing);
+                combat_state.combat_log.push(format!(
+                    "{} switches to ranged combat mode",
+                    fighter_name
+                ));
+                return;
+            }
+            if keyboard.just_pressed(KeyCode::KeyM) {
+                let fighter_name = if combat_state.current_attacker == 1 { "Fighter 1" } else { "Fighter 2" };
+                combat_state.combat_mode = CombatMode::Melee;
+                combat_state.ranged_phase = None;
+                combat_state.aiming_rounds = 0;
+                combat_state.combat_log.push(format!(
+                    "{} switches to melee combat mode",
+                    fighter_name
+                ));
+                return;
+            }
+        }
+
+        // Handle distance changes (1=Close, 2=Medium, 3=Long)
+        if keyboard.just_pressed(KeyCode::Digit1) {
+            combat_state.distance = Distance::Close;
+            combat_state.combat_log.push("Distance: Close range".to_string());
+            return;
+        }
+        if keyboard.just_pressed(KeyCode::Digit2) {
+            combat_state.distance = Distance::Medium;
+            combat_state.combat_log.push("Distance: Medium range".to_string());
+            return;
+        }
+        if keyboard.just_pressed(KeyCode::Digit3) {
+            combat_state.distance = Distance::Long;
+            combat_state.combat_log.push("Distance: Long range".to_string());
+            return;
+        }
+    }
+
+    // Handle ranged combat sequence
+    if combat_state.combat_mode == CombatMode::Ranged {
+        if let Some(phase) = combat_state.ranged_phase {
+            match phase {
+                RangedAttackPhase::Preparing => {
+                    if keyboard.just_pressed(KeyCode::KeyA) {
+                        // Start aiming
+                        combat_state.ranged_phase = Some(RangedAttackPhase::Aiming);
+                        combat_state.aiming_rounds = 0;
+                        combat_state.combat_log.push("Aiming...".to_string());
+                        return;
+                    }
+                    if keyboard.just_pressed(KeyCode::KeyF) {
+                        // Fire without aiming
+                        combat_state.ranged_phase = Some(RangedAttackPhase::ReadyToFire);
+                    }
+                }
+                RangedAttackPhase::Aiming => {
+                    if keyboard.just_pressed(KeyCode::KeyA) {
+                        // Continue aiming (max 1 round for +1 bonus)
+                        if combat_state.aiming_rounds < 1 {
+                            combat_state.aiming_rounds += 1;
+                            let aiming_rounds = combat_state.aiming_rounds;
+                            combat_state.combat_log.push(format!(
+                                "Aiming carefully... (+{} bonus)",
+                                aiming_rounds
+                            ));
+                        }
+                        return;
+                    }
+                    if keyboard.just_pressed(KeyCode::KeyF) {
+                        // Fire after aiming
+                        combat_state.ranged_phase = Some(RangedAttackPhase::ReadyToFire);
+                    }
+                }
+                RangedAttackPhase::ReadyToFire => {
+                    // Execute ranged attack
+                    let mut attacker_fighter = None;
+                    let mut defender_fighter = None;
+
+                    for (_, fighter) in fighters.iter() {
+                        if (combat_state.current_attacker == 1 && fighter.is_player_one)
+                            || (combat_state.current_attacker == 2 && !fighter.is_player_one)
+                        {
+                            attacker_fighter = Some(fighter.clone());
+                        } else {
+                            defender_fighter = Some(fighter.clone());
+                        }
+                    }
+
+                    if let (Some(attacker), Some(defender)) = (attacker_fighter, defender_fighter) {
+                        let (hit, damage, log_msg) = execute_ranged_attack(
+                            &attacker,
+                            &defender,
+                            &combat_state
+                        );
+
+                        combat_state.combat_log.push(log_msg);
+
+                        if hit && damage > 0 {
+                            // Apply damage to defender
+                            for (_, mut fighter) in fighters.iter_mut() {
+                                if (combat_state.current_attacker == 1 && !fighter.is_player_one)
+                                    || (combat_state.current_attacker == 2 && fighter.is_player_one)
+                                {
+                                    // Determine wound level based on damage vs CON
+                                    let defender_con = fighter.character.attributes.constitution;
+                                    let wound_level = if damage > defender_con * 2 {
+                                        combat_state.combat_log.push("FATAL HIT!".to_string());
+                                        WoundLevel::Critical // Will result in death after stacking
+                                    } else if damage > defender_con {
+                                        combat_state.combat_log.push("Critical wound!".to_string());
+                                        WoundLevel::Critical
+                                    } else if damage > defender_con / 2 {
+                                        combat_state.combat_log.push("Severe wound!".to_string());
+                                        WoundLevel::Severe
+                                    } else {
+                                        combat_state.combat_log.push("Light wound!".to_string());
+                                        WoundLevel::Light
+                                    };
+
+                                    fighter.character.wounds.add_wound(wound_level);
+
+                                    if !fighter.character.is_alive() {
+                                        combat_state.combat_log.push(format!(
+                                            "{} has been slain!",
+                                            fighter.character.name
+                                        ));
+                                        combat_state.game_over = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Reset ranged attack state and switch turns
+                        combat_state.ranged_phase = None;
+                        combat_state.aiming_rounds = 0;
+                        combat_state.combat_mode = CombatMode::Melee; // Return to melee for next turn
+
+                        // Switch attacker
+                        if combat_state.current_attacker == 1 {
+                            combat_state.current_attacker = 2;
+                        } else {
+                            combat_state.current_attacker = 1;
+                            combat_state.round += 1;
+                            let round = combat_state.round;
+                            combat_state.paused = true;
+                            combat_state.combat_log.push(format!("\n--- ROUND {} ---", round));
+                        }
+                    }
+                    return;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // Handle defense choice when waiting (melee combat)
+    if combat_state.waiting_for_defense && combat_state.combat_mode == CombatMode::Melee {
         let mut attacker = None;
         let mut defender = None;
 
@@ -383,19 +617,65 @@ pub fn update_combat_ui(
         if combat_state.game_over {
             **instruction_text = "Combat Over! Press [Q] to return to main menu".to_string();
         } else if combat_state.waiting_for_defense {
-            let defender_name = fighters
-                .iter()
-                .find(|f| {
-                    (combat_state.current_attacker == 1 && !f.is_player_one)
-                        || (combat_state.current_attacker == 2 && f.is_player_one)
-                })
-                .map(|f| f.character.name.as_str())
-                .unwrap_or("Unknown");
+            // Check if current attacker has ranged weapon
+            let attacker_has_ranged = fighters.iter().find(|f| {
+                (combat_state.current_attacker == 1 && f.is_player_one)
+                    || (combat_state.current_attacker == 2 && !f.is_player_one)
+            }).map(|f| f.character.ranged_weapon.is_some()).unwrap_or(false);
 
-            **instruction_text = format!(
-                "How does {} defend? Press [P] for Parry or [D] for Dodge\nPress [Q] to quit",
-                defender_name
-            );
+            let mut instructions = String::new();
+
+            // Show combat mode and distance
+            instructions.push_str(&format!(
+                "Mode: {:?} | Distance: {:?} ({}m)\n",
+                combat_state.combat_mode,
+                combat_state.distance,
+                combat_state.distance.meters()
+            ));
+
+            if combat_state.combat_mode == CombatMode::Ranged {
+                // Ranged combat instructions
+                if let Some(phase) = combat_state.ranged_phase {
+                    match phase {
+                        RangedAttackPhase::Preparing => {
+                            instructions.push_str("Ranged weapon ready!\n");
+                            instructions.push_str("[A] Aim for bonus | [F] Fire immediately | [M] Switch to melee");
+                        }
+                        RangedAttackPhase::Aiming => {
+                            instructions.push_str(&format!("Aiming... (+{} bonus)\n", combat_state.aiming_rounds));
+                            instructions.push_str("[A] Continue aiming | [F] Fire shot");
+                        }
+                        RangedAttackPhase::ReadyToFire => {
+                            instructions.push_str("Firing ranged weapon...");
+                        }
+                        _ => {
+                            instructions.push_str("Ranged combat in progress...");
+                        }
+                    }
+                }
+            } else {
+                // Melee combat instructions
+                let defender_name = fighters
+                    .iter()
+                    .find(|f| {
+                        (combat_state.current_attacker == 1 && !f.is_player_one)
+                            || (combat_state.current_attacker == 2 && f.is_player_one)
+                    })
+                    .map(|f| f.character.name.as_str())
+                    .unwrap_or("Unknown");
+
+                instructions.push_str(&format!(
+                    "How does {} defend? [P] Parry | [D] Dodge\n",
+                    defender_name
+                ));
+
+                if attacker_has_ranged {
+                    instructions.push_str("[R] Switch to ranged combat | ");
+                }
+                instructions.push_str("[1/2/3] Change distance | [Q] Quit");
+            }
+
+            **instruction_text = instructions;
         } else if combat_state.paused {
             **instruction_text =
                 "Press [SPACE] to continue to next round | [Q] to return to main menu".to_string();

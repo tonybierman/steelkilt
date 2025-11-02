@@ -5,6 +5,7 @@ use crate::components::{Fighter, SelectionText, SelectionUI};
 use crate::file_ops::{load_available_combatants, load_character_from_file};
 use crate::main_menu::spawn_main_menu_ui;
 use crate::state::{CombatState, GameState, GameStateEnum};
+use steelkilt::modules::ranged_combat::RangedAttackState;
 
 /// Spawns the character selection UI hierarchy.
 pub fn spawn_selection_ui(commands: &mut Commands) {
@@ -106,14 +107,27 @@ pub fn handle_selection_input(
                     commands.entity(entity).despawn_recursive();
                 }
 
-                // Spawn fighters
+                // Spawn fighters with ranged state if they have ranged weapons
+                let ranged_state1 = if char1.ranged_weapon.is_some() {
+                    Some(RangedAttackState::new())
+                } else {
+                    None
+                };
+                let ranged_state2 = if char2.ranged_weapon.is_some() {
+                    Some(RangedAttackState::new())
+                } else {
+                    None
+                };
+
                 commands.spawn(Fighter {
                     character: char1,
                     is_player_one: true,
+                    ranged_state: ranged_state1,
                 });
                 commands.spawn(Fighter {
                     character: char2,
                     is_player_one: false,
+                    ranged_state: ranged_state2,
                 });
 
                 // Transition to combat

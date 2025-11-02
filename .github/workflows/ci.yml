@@ -71,9 +71,6 @@ jobs:
       - name: Build with serde feature
         run: cargo build --features serde --verbose
 
-      - name: Build combat-sim binary
-        run: cargo build --bin combat-sim --verbose
-
       - name: Build examples
         run: cargo build --examples --verbose
 

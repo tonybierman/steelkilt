@@ -158,6 +158,9 @@ struct InstructionText;
 #[derive(Component)]
 struct DynamicText;
 
+#[derive(Component)]
+struct ManagementText;
+
 // ===== FILE OPERATIONS =====
 
 fn load_available_combatants() -> Vec<String> {
@@ -243,7 +246,6 @@ fn spawn_main_menu_ui(commands: &mut Commands) {
                     ..default()
                 },
                 TextColor(Color::srgb(1.0, 1.0, 1.0)),
-                DynamicText,
             ));
         });
 }
@@ -317,7 +319,7 @@ fn spawn_management_ui(commands: &mut Commands) {
                     ..default()
                 },
                 TextColor(Color::srgb(1.0, 1.0, 1.0)),
-                DynamicText,
+                ManagementText,
             ));
         });
 }
@@ -388,7 +390,7 @@ fn handle_management_input(
 fn update_management_ui(
     management_state: Res<ManagementState>,
     game_state: Res<GameState>,
-    mut query: Query<&mut Text, (With<DynamicText>, With<ManagementUI>)>,
+    mut query: Query<&mut Text, With<ManagementText>>,
 ) {
     if !game_state.is_in(GameStateEnum::Management) {
         return;
@@ -488,7 +490,7 @@ fn spawn_selection_ui(commands: &mut Commands) {
                     ..default()
                 },
                 TextColor(Color::srgb(1.0, 1.0, 1.0)),
-                DynamicText,
+                SelectionText,
             ));
         });
 }
@@ -579,7 +581,7 @@ fn handle_selection_input(
 fn update_selection_ui(
     combat_state: Res<CombatState>,
     game_state: Res<GameState>,
-    mut query: Query<&mut Text, (With<DynamicText>, With<SelectionUI>)>,
+    mut query: Query<&mut Text, With<SelectionText>>,
 ) {
     if !game_state.is_in(GameStateEnum::Selection) {
         return;

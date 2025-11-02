@@ -54,29 +54,46 @@ The application follows Bevy's ECS (Entity Component System) pattern:
 - `SelectionText`: Marker for the selection screen text element
 
 ### Resources
-- `CombatState`: Global state tracking:
+- `GameState`: Application state machine:
+  - Current state (MainMenu, Management, Selection, Combat)
+  - Previous state for back navigation
+  - Handles transitions between screens
+
+- `CombatState`: Combat-specific state:
   - Current round number
   - Which fighter is attacking
   - Whether waiting for defense input
   - Combat log history
   - Game over/paused state
-- `CharacterSelection`: Character selection state:
+  - Selected fighter indices for character selection
+
+- `ManagementState`: Combatant management state:
   - List of available combatants (loaded from JSON files)
-  - Selected fighter indices (1 and 2)
-  - Whether currently in selection mode
+  - Selected combatant index for navigation
+  - Current mode (List or View)
+  - Delete confirmation state
 
 ### Systems
-- `setup`: Initializes UI (selection or combat based on state)
-- `handle_selection_input`: Processes number keys (1-0) for character selection and Enter to start
-- `handle_input`: Processes keyboard input for defense actions (P/D) and game flow (Space/Q)
+- `setup`: Initializes the main menu UI
+- `handle_main_menu_input`: Processes main menu selections (1, 2, Q)
+- `handle_management_input`: Handles combatant management navigation and actions
+- `handle_selection_input`: Processes number keys (1-0) for character selection
+- `handle_combat_input`: Processes combat keyboard input (P/D/Space/Q)
 - `update_combat`: Placeholder for future combat automation logic
-- `update_ui`: Refreshes combat UI text based on current combat state
-- `update_selection_ui`: Updates selection screen with available combatants and selections
+- `update_main_menu_ui`: Static main menu (no updates needed)
+- `update_management_ui`: Updates management screen based on state
+- `update_selection_ui`: Updates selection screen with available combatants
+- `update_combat_ui`: Refreshes combat UI (status, log, instructions)
 
 ### Helper Functions
 - `load_available_combatants()`: Scans combatants directory and returns list of JSON files
 - `load_character_from_file()`: Deserializes a Character from a JSON file
-- `spawn_combat_ui()`: Creates the combat UI hierarchy dynamically after selection
+- `save_character_to_file()`: Serializes and saves a Character to JSON (for future edit feature)
+- `delete_character_file()`: Removes a combatant JSON file
+- `spawn_main_menu_ui()`: Creates the main menu UI hierarchy
+- `spawn_management_ui()`: Creates the combatant management UI hierarchy
+- `spawn_selection_ui()`: Creates the character selection UI hierarchy
+- `spawn_combat_ui()`: Creates the combat UI hierarchy
 
 ### Combat Flow
 1. Fighter 1 attacks, opponent chooses defense (Parry or Dodge)
@@ -87,18 +104,43 @@ The application follows Bevy's ECS (Entity Component System) pattern:
 6. Press Space to continue to next round
 7. Combat ends when a fighter dies or both are incapacitated
 
+### Navigation Flow
+
+The application follows this state flow:
+1. **Main Menu**: Choose to start combat or manage combatants
+2. **Combatant Management** (optional): View, delete, or refresh combatant list
+3. **Character Selection**: Select two fighters for combat
+4. **Combat**: Turn-based combat until victory or exit
+
 ### Controls
+
+**Main Menu:**
+- **1**: Start Combat (go to character selection)
+- **2**: Manage Combatants
+- **Q / Escape**: Quit application
+
+**Combatant Management:**
+- **↑/↓**: Navigate combatant list
+- **V**: View selected combatant details
+- **D**: Delete selected combatant (with confirmation)
+- **R**: Refresh combatant list
+- **ESC / B**: Back to main menu (or back to list if viewing)
+
+**Delete Confirmation:**
+- **Y**: Confirm delete
+- **N / ESC**: Cancel delete
 
 **Character Selection:**
 - **1-9, 0**: Select combatants (first selection = Fighter 1, second = Fighter 2)
 - **Enter**: Start combat with selected fighters
 - **Backspace**: Clear selections
+- **ESC**: Return to main menu
 
 **Combat:**
 - **P**: Choose Parry defense
 - **D**: Choose Dodge defense
 - **Space**: Continue to next round
-- **Q / Escape**: Quit combat
+- **Q / Escape**: End combat and return to main menu
 
 ## Combatant System
 

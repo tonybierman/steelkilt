@@ -66,6 +66,7 @@ The application follows Bevy's ECS (Entity Component System) pattern:
   - Combat log history
   - Game over/paused state
   - Selected fighter indices for character selection
+  - Selection cursor position for arrow key navigation
 
 - `ManagementState`: Combatant management state:
   - List of available combatants (loaded from JSON files)
@@ -77,7 +78,7 @@ The application follows Bevy's ECS (Entity Component System) pattern:
 - `setup`: Initializes the main menu UI
 - `handle_main_menu_input`: Processes main menu selections (1, 2, Q)
 - `handle_management_input`: Handles combatant management navigation and actions
-- `handle_selection_input`: Processes number keys (1-0) for character selection
+- `handle_selection_input`: Processes arrow keys and Space for character selection
 - `handle_combat_input`: Processes combat keyboard input (P/D/Space/Q)
 - `update_combat`: Placeholder for future combat automation logic
 - `update_main_menu_ui`: Static main menu (no updates needed)
@@ -131,9 +132,10 @@ The application follows this state flow:
 - **N / ESC**: Cancel delete
 
 **Character Selection:**
-- **1-9, 0**: Select combatants (first selection = Fighter 1, second = Fighter 2)
-- **Enter**: Start combat with selected fighters
-- **Backspace**: Clear selections
+- **↑/↓**: Navigate through available combatants
+- **Space**: Select highlighted combatant (first = Fighter 1, second = Fighter 2)
+- **Enter**: Start combat with selected fighters (or select if none selected)
+- **Backspace**: Clear last selection
 - **ESC**: Return to main menu
 
 **Combat:**

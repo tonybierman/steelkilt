@@ -111,6 +111,7 @@ struct CombatState {
     paused: bool,
     selected_fighter1: Option<usize>,
     selected_fighter2: Option<usize>,
+    selection_cursor: usize,
 }
 
 impl Default for CombatState {
@@ -124,6 +125,7 @@ impl Default for CombatState {
             paused: false,
             selected_fighter1: None,
             selected_fighter2: None,
+            selection_cursor: 0,
         }
     }
 }
@@ -525,33 +527,36 @@ fn handle_selection_input(
 
     let combatants = load_available_combatants();
 
-    // Number keys 1-9 and 0 for selecting fighters
-    let number_keys = [
-        (KeyCode::Digit1, 0),
-        (KeyCode::Digit2, 1),
-        (KeyCode::Digit3, 2),
-        (KeyCode::Digit4, 3),
-        (KeyCode::Digit5, 4),
-        (KeyCode::Digit6, 5),
-        (KeyCode::Digit7, 6),
-        (KeyCode::Digit8, 7),
-        (KeyCode::Digit9, 8),
-        (KeyCode::Digit0, 9),
-    ];
+    if combatants.is_empty() {
+        return;
+    }
 
-    for (key, index) in number_keys {
-        if keyboard.just_pressed(key) && index < combatants.len() {
-            if combat_state.selected_fighter1.is_none() {
-                combat_state.selected_fighter1 = Some(index);
-            } else if combat_state.selected_fighter2.is_none()
-                && Some(index) != combat_state.selected_fighter1
-            {
-                combat_state.selected_fighter2 = Some(index);
-            }
+    // Arrow keys for navigation
+    if keyboard.just_pressed(KeyCode::ArrowUp) {
+        if combat_state.selection_cursor > 0 {
+            combat_state.selection_cursor -= 1;
         }
     }
 
-    // Enter to start combat
+    if keyboard.just_pressed(KeyCode::ArrowDown) {
+        if combat_state.selection_cursor < combatants.len().min(10) - 1 {
+            combat_state.selection_cursor += 1;
+        }
+    }
+
+    // Space or Enter to select fighter
+    if keyboard.just_pressed(KeyCode::Space) {
+        let current_idx = combat_state.selection_cursor;
+        if combat_state.selected_fighter1.is_none() {
+            combat_state.selected_fighter1 = Some(current_idx);
+        } else if combat_state.selected_fighter2.is_none()
+            && Some(current_idx) != combat_state.selected_fighter1
+        {
+            combat_state.selected_fighter2 = Some(current_idx);
+        }
+    }
+
+    // Enter to start combat when both fighters selected
     if keyboard.just_pressed(KeyCode::Enter) {
         if let (Some(idx1), Some(idx2)) = (
             combat_state.selected_fighter1,
@@ -583,13 +588,17 @@ fn handle_selection_input(
                 game_state.transition_to(GameStateEnum::Combat);
                 spawn_combat_ui(&mut commands);
             }
+        } else if combat_state.selected_fighter1.is_none() {
+            // If no fighters selected, Enter works like Space
+            combat_state.selected_fighter1 = Some(combat_state.selection_cursor);
         }
     }
 
     // Backspace to clear selections
     if keyboard.just_pressed(KeyCode::Backspace) {
-        combat_state.selected_fighter2 = None;
-        if combat_state.selected_fighter1.is_some() && combat_state.selected_fighter2.is_none() {
+        if combat_state.selected_fighter2.is_some() {
+            combat_state.selected_fighter2 = None;
+        } else if combat_state.selected_fighter1.is_some() {
             combat_state.selected_fighter1 = None;
         }
     }
@@ -601,6 +610,7 @@ fn handle_selection_input(
         }
         combat_state.selected_fighter1 = None;
         combat_state.selected_fighter2 = None;
+        combat_state.selection_cursor = 0;
         game_state.transition_to(GameStateEnum::MainMenu);
         spawn_main_menu_ui(&mut commands);
     }
@@ -622,7 +632,11 @@ fn update_selection_ui(
         display.push_str("Select two combatants to fight:\n\n");
 
         for (i, name) in combatants.iter().enumerate().take(10) {
-            let num = if i == 9 { 0 } else { i + 1 };
+            let cursor = if i == combat_state.selection_cursor {
+                "> "
+            } else {
+                "  "
+            };
             let marker = if Some(i) == combat_state.selected_fighter1 {
                 " [FIGHTER 1] ✓"
             } else if Some(i) == combat_state.selected_fighter2 {
@@ -630,7 +644,7 @@ fn update_selection_ui(
             } else {
                 ""
             };
-            display.push_str(&format!("[{}] {}{}\n", num, name, marker));
+            display.push_str(&format!("{}{}{}\n", cursor, name, marker));
         }
 
         display.push_str("\n");
@@ -638,13 +652,12 @@ fn update_selection_ui(
         if combat_state.selected_fighter1.is_some() && combat_state.selected_fighter2.is_some() {
             display.push_str("Press [ENTER] to start combat\n");
         } else if combat_state.selected_fighter1.is_some() {
-            display.push_str("Select second fighter\n");
+            display.push_str("Select second fighter with [SPACE]\n");
         } else {
-            display.push_str("Select first fighter\n");
+            display.push_str("Select first fighter with [SPACE]\n");
         }
 
-        display.push_str("Press [BACKSPACE] to clear selection\n");
-        display.push_str("Press [ESC] to return to main menu");
+        display.push_str("Press [↑/↓] to navigate | [BACKSPACE] to clear | [ESC] to return to main menu");
 
         **text = display;
     }

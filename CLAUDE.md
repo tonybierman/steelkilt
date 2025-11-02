@@ -133,7 +133,7 @@ The project uses GitHub Actions for automated testing and quality checks:
 - **Examples**: Builds the Bevy example with required system dependencies
 - **Clippy**: Lints code for common mistakes and style issues
 - **Formatting**: Ensures consistent code formatting with rustfmt
-- **Coverage**: Generates code coverage reports (uploaded to Codecov)
+- **Coverage**: Generates code coverage reports using cargo-llvm-cov (uploaded to Codecov)
 
 ### Running CI Checks Locally
 ```bash
@@ -149,6 +149,12 @@ cargo clippy --all-features -- -D warnings
 # Build everything
 cargo build --all-features
 cargo build --examples
+
+# Generate code coverage (requires cargo-llvm-cov)
+cargo install cargo-llvm-cov
+cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+# View HTML report
+cargo llvm-cov --all-features --workspace --html
 ```
 
 ### CI Configuration

@@ -66,7 +66,24 @@ jobs:
 
       - name: Verify publication
         run: |
-          echo "Waiting for crates.io to update..."
-          sleep 30
+          echo "Waiting for crates.io to index the new version..."
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          cargo search steelkilt | grep "^steelkilt = \"$TAG_VERSION\""
+          echo "Expected version: $TAG_VERSION"
+
+          # Retry up to 6 times with 30 second intervals (3 minutes total)
+          for i in {1..6}; do
+            echo "Attempt $i/6: Checking crates.io..."
+            sleep 30
+
+            if cargo search steelkilt --limit 1 | grep -q "steelkilt.*$TAG_VERSION"; then
+              echo "✓ Successfully verified steelkilt $TAG_VERSION on crates.io"
+              exit 0
+            fi
+
+            echo "Version $TAG_VERSION not yet visible, waiting..."
+          done
+
+          echo "⚠ Warning: Could not verify version on crates.io after 3 minutes"
+          echo "This is often due to crates.io indexing delays and is usually not a problem."
+          echo "Check https://crates.io/crates/steelkilt manually to verify."
+          exit 0  # Don't fail the job, just warn

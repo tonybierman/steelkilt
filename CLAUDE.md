@@ -216,9 +216,12 @@ The workflow (`.github/workflows/release.yml`) ensures:
 - Version consistency between Cargo.toml and git tag
 - All tests pass before publishing
 - Code quality checks pass (clippy, fmt)
-- Publication succeeds and is verified
+- Publication succeeds
+- Verification attempts to confirm the package appears on crates.io (with retries)
 
 If validation fails, the workflow stops before publishing to crates.io.
+
+**Note**: The verification step may show warnings due to crates.io indexing delays (can take several minutes). The workflow won't fail if verification times out - you can manually check https://crates.io/crates/steelkilt to confirm publication.
 
 ## Bevy Integration Example
 

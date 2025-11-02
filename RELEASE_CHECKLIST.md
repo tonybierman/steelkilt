@@ -92,6 +92,7 @@ If the release workflow fails:
 2. **Tests fail**: Fix failing tests and create a new patch release
 3. **Clippy errors**: Fix warnings and create a new patch release
 4. **Publication fails**: Check CARGO_REGISTRY_TOKEN is correct and has proper permissions
+5. **Verification warning**: The workflow may warn if it can't verify the version on crates.io within 3 minutes. This is normal due to indexing delays - check https://crates.io/crates/steelkilt manually to confirm publication.
 
 ## Versioning Guidelines
 

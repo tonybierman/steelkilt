@@ -22,3 +22,8 @@ cargo llvm-cov --lcov --output-path lcov.info
 ```bash
 cargo llvm-cov --test test_name
 ```
+
+# Run style formatting
+```bash
+cargo fmt
+```

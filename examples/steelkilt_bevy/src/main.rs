@@ -1014,6 +1014,19 @@ fn update_combat_ui(
                     ));
                 }
 
+                // Add ranged weapon info if character has one
+                if let Some(ref ranged) = c.ranged_weapon {
+                    let ranged_skill = c.ranged_skill.unwrap_or(0);
+                    display.push_str(&format!(
+                        "\nRanged: {} (Dmg: {}, Range: {}-{}m, Skill: {})",
+                        ranged.name,
+                        ranged.damage,
+                        ranged.point_blank_range,
+                        ranged.max_range,
+                        ranged_skill
+                    ));
+                }
+
                 display.push_str(&format!("\nStatus: {}", status_str));
                 **text = display;
             }

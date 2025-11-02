@@ -270,6 +270,10 @@ pub struct Character {
     pub wounds: Wounds,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub magic: Option<modules::magic::MagicUser>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub ranged_weapon: Option<modules::ranged_combat::RangedWeapon>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub ranged_skill: Option<i32>,
 }
 
 impl Character {
@@ -290,6 +294,8 @@ impl Character {
             armor,
             wounds: Wounds::new(),
             magic: None,
+            ranged_weapon: None,
+            ranged_skill: None,
         }
     }
 
@@ -311,6 +317,8 @@ impl Character {
             armor,
             wounds: Wounds::new(),
             magic: Some(magic),
+            ranged_weapon: None,
+            ranged_skill: None,
         }
     }
 

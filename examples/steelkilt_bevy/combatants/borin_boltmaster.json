@@ -1,0 +1,41 @@
+{
+  "name": "Borin Boltmaster",
+  "attributes": {
+    "strength": 6,
+    "dexterity": 7,
+    "constitution": 7,
+    "reason": 7,
+    "intuition": 6,
+    "willpower": 6,
+    "charisma": 4,
+    "perception": 8,
+    "empathy": 4
+  },
+  "weapon_skill": 5,
+  "dodge_skill": 5,
+  "weapon": {
+    "name": "Hand Axe",
+    "impact": "Small",
+    "damage": 3
+  },
+  "armor": {
+    "name": "Chain Mail",
+    "armor_type": "Chain",
+    "protection": 3,
+    "movement_penalty": -1
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  },
+  "ranged_weapon": {
+    "name": "Crossbow",
+    "damage": 6,
+    "point_blank_range": 30,
+    "max_range": 100,
+    "preparation_time": 6,
+    "rate_of_fire": 1
+  },
+  "ranged_skill": 7
+}

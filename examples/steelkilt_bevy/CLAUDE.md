@@ -165,9 +165,10 @@ cargo run
 
 ### Included Combatants
 
-The project includes 12 pre-made combatants:
+The project includes 14 pre-made combatants:
 - **Warriors**: Aldric, Grimwald, Thora, Kael, Ragnar, Garrick, Zephyr, Elara
 - **Mages**: Mira (with Divination spells), Brother Aldwyn, Sylvana, Morgana
+- **Ranged Fighters**: Elyndra Swiftarrow (Long Bow), Borin Boltmaster (Crossbow)
 
 Each has unique stat distributions optimized for different fighting styles.
 
@@ -224,3 +225,50 @@ To create a magic-using combatant, add a `magic` field to the JSON file:
 See `combatants/mira_starweaver.json` for a complete example.
 
 **Note**: Spell casting during combat is not yet implemented. Currently, magic stats are displayed for informational purposes.
+
+### Ranged Weapon System
+
+The application supports the Draft RPG ranged combat system from Section 4.21. Characters can have:
+- **Ranged Weapon**: Bow, crossbow, javelin, pistol, rifle, etc.
+- **Ranged Skill**: Separate skill level for ranged attacks
+- **Range Bands**: Point blank and maximum range
+- **Rate of Fire**: Number of shots per round
+
+#### Ranged Weapons in Combat
+
+When a combatant with a ranged weapon is selected, their status display shows:
+- Ranged weapon name and damage
+- Point blank and maximum range in meters
+- Ranged skill level
+
+**Supported Ranged Weapons:**
+- **Long Bow**: 6 damage, 30m point blank, 120m max range
+- **Short Bow**: 4 damage, 20m point blank, 100m max range
+- **Crossbow**: 6 damage, 30m point blank, 100m max range (slow reload)
+- **Pistol**: 6 damage, 20m point blank, 80m max range, 3 shots/round
+- **Rifle**: 8 damage, 40m point blank, 200m max range, 2 shots/round
+- **Javelin**: 4 damage, 15m point blank, 40m max range
+
+#### Adding Ranged Weapons to Combatants
+
+To create a combatant with a ranged weapon, add `ranged_weapon` and `ranged_skill` fields to the JSON file:
+
+```json
+{
+  "name": "Example Archer",
+  ...other fields...
+  "ranged_weapon": {
+    "name": "Long Bow",
+    "damage": 6,
+    "point_blank_range": 30,
+    "max_range": 120,
+    "preparation_time": 3,
+    "rate_of_fire": 1
+  },
+  "ranged_skill": 8
+}
+```
+
+See `combatants/elyndra_swiftarrow.json` for a complete archer example.
+
+**Note**: Ranged combat during fights is not yet implemented. Characters will still use their melee weapons in combat. The ranged weapon stats are displayed for informational purposes and for future implementation of ranged combat mechanics.

@@ -2,8 +2,12 @@
 
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Types of ranged weapons
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RangedWeapon {
     pub name: String,
     pub damage: i32,
@@ -107,6 +111,7 @@ impl RangedWeapon {
 
 /// Target size modifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum TargetSize {
     Tiny,     // -4 (rat, small bird)
     Small,    // -2 (cat, small dog)
@@ -131,6 +136,7 @@ impl TargetSize {
 
 /// Ranged attack state
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RangedAttackState {
     pub weapon_ready: bool,
     pub aiming: bool,
@@ -208,6 +214,7 @@ impl Default for RangedAttackState {
 
 /// Cover types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Cover {
     None,
     Partial,       // -2 to hit, 1/2 body exposed
@@ -227,6 +234,7 @@ impl Cover {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum RangedCombatError {
     WeaponNotReady,
     NoAmmunition,

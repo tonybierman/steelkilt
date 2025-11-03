@@ -273,4 +273,241 @@ mod tests {
         // Torso wounds don't automatically disable
         assert!(!torso.disabled);
     }
+
+    #[test]
+    fn test_all_attack_directions() {
+        // Test that all attack directions produce valid hit locations
+        let directions = [
+            AttackDirection::Front,
+            AttackDirection::Back,
+            AttackDirection::Left,
+            AttackDirection::Right,
+            AttackDirection::Above,
+            AttackDirection::Below,
+        ];
+
+        for direction in &directions {
+            for _ in 0..20 {
+                let loc = HitLocation::determine(*direction);
+                // Just verify it's a valid location
+                match loc {
+                    HitLocation::Head
+                    | HitLocation::Torso
+                    | HitLocation::LeftArm
+                    | HitLocation::RightArm
+                    | HitLocation::LeftLeg
+                    | HitLocation::RightLeg => {}
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_hit_location_display() {
+        assert_eq!(format!("{}", HitLocation::Head), "Head");
+        assert_eq!(format!("{}", HitLocation::Torso), "Torso");
+        assert_eq!(format!("{}", HitLocation::LeftArm), "Left Arm");
+        assert_eq!(format!("{}", HitLocation::RightArm), "Right Arm");
+        assert_eq!(format!("{}", HitLocation::LeftLeg), "Left Leg");
+        assert_eq!(format!("{}", HitLocation::RightLeg), "Right Leg");
+    }
+
+    #[test]
+    fn test_attack_direction_display() {
+        assert_eq!(format!("{}", AttackDirection::Front), "Front");
+        assert_eq!(format!("{}", AttackDirection::Back), "Back");
+        assert_eq!(format!("{}", AttackDirection::Left), "Left");
+        assert_eq!(format!("{}", AttackDirection::Right), "Right");
+        assert_eq!(format!("{}", AttackDirection::Above), "Above");
+        assert_eq!(format!("{}", AttackDirection::Below), "Below");
+    }
+
+    #[test]
+    fn test_all_damage_multipliers() {
+        assert_eq!(HitLocation::Head.damage_multiplier(), 1.5);
+        assert_eq!(HitLocation::Torso.damage_multiplier(), 1.0);
+        assert_eq!(HitLocation::LeftArm.damage_multiplier(), 0.75);
+        assert_eq!(HitLocation::RightArm.damage_multiplier(), 0.75);
+        assert_eq!(HitLocation::LeftLeg.damage_multiplier(), 0.75);
+        assert_eq!(HitLocation::RightLeg.damage_multiplier(), 0.75);
+    }
+
+    #[test]
+    fn test_all_weapon_drop_locations() {
+        // Arms cause weapon drop
+        assert!(HitLocation::LeftArm.causes_weapon_drop());
+        assert!(HitLocation::RightArm.causes_weapon_drop());
+
+        // Other locations don't
+        assert!(!HitLocation::Head.causes_weapon_drop());
+        assert!(!HitLocation::Torso.causes_weapon_drop());
+        assert!(!HitLocation::LeftLeg.causes_weapon_drop());
+        assert!(!HitLocation::RightLeg.causes_weapon_drop());
+    }
+
+    #[test]
+    fn test_all_can_sever_locations() {
+        // Limbs can be severed
+        assert!(HitLocation::LeftArm.can_sever());
+        assert!(HitLocation::RightArm.can_sever());
+        assert!(HitLocation::LeftLeg.can_sever());
+        assert!(HitLocation::RightLeg.can_sever());
+
+        // Head and torso cannot
+        assert!(!HitLocation::Head.can_sever());
+        assert!(!HitLocation::Torso.can_sever());
+    }
+
+    #[test]
+    fn test_right_arm_wounds() {
+        let mut arm = LocationalDamage::new(HitLocation::RightArm);
+
+        assert!(arm.is_functional());
+        assert_eq!(arm.penalty(), 0);
+
+        // Light wound
+        arm.add_wound(WoundSeverity::Light);
+        assert!(arm.is_functional());
+        assert_eq!(arm.penalty(), -1);
+
+        // Severe wound disables
+        arm.add_wound(WoundSeverity::Severe);
+        assert!(!arm.is_functional());
+        assert!(arm.disabled);
+        assert_eq!(arm.penalty(), -4);
+    }
+
+    #[test]
+    fn test_leg_wounds() {
+        let mut leg = LocationalDamage::new(HitLocation::LeftLeg);
+
+        // Legs don't cause weapon drop
+        assert!(!leg.location.causes_weapon_drop());
+
+        // But can be severed
+        assert!(leg.location.can_sever());
+
+        // Severe wound doesn't disable legs (only arms)
+        leg.add_wound(WoundSeverity::Severe);
+        assert!(!leg.disabled);
+        assert!(leg.is_functional());
+
+        // Critical wounds do disable
+        leg.add_wound(WoundSeverity::Critical);
+        assert!(leg.disabled);
+        assert!(!leg.is_functional());
+
+        // Two criticals sever
+        leg.add_wound(WoundSeverity::Critical);
+        assert!(leg.severed);
+        assert_eq!(leg.penalty(), -999);
+    }
+
+    #[test]
+    fn test_right_leg_wounds() {
+        let mut leg = LocationalDamage::new(HitLocation::RightLeg);
+
+        assert!(leg.location.can_sever());
+        assert!(!leg.location.causes_weapon_drop());
+
+        leg.add_wound(WoundSeverity::Critical);
+        leg.add_wound(WoundSeverity::Critical);
+        assert!(leg.severed);
+    }
+
+    #[test]
+    fn test_multiple_light_wounds() {
+        let mut torso = LocationalDamage::new(HitLocation::Torso);
+
+        torso.add_wound(WoundSeverity::Light);
+        assert_eq!(torso.penalty(), -1);
+
+        torso.add_wound(WoundSeverity::Light);
+        assert_eq!(torso.penalty(), -2);
+
+        torso.add_wound(WoundSeverity::Light);
+        assert_eq!(torso.penalty(), -3);
+
+        assert!(torso.is_functional());
+    }
+
+    #[test]
+    fn test_multiple_severe_wounds() {
+        let mut torso = LocationalDamage::new(HitLocation::Torso);
+
+        torso.add_wound(WoundSeverity::Severe);
+        assert_eq!(torso.penalty(), -2);
+        assert!(!torso.disabled); // Torso doesn't get disabled by severe
+
+        torso.add_wound(WoundSeverity::Severe);
+        assert_eq!(torso.penalty(), -4);
+    }
+
+    #[test]
+    fn test_mixed_wounds() {
+        let mut torso = LocationalDamage::new(HitLocation::Torso);
+
+        torso.add_wound(WoundSeverity::Light);
+        torso.add_wound(WoundSeverity::Severe);
+        torso.add_wound(WoundSeverity::Light);
+
+        // Penalty: 2 light (-2) + 1 severe (-2) = -4
+        assert_eq!(torso.penalty(), -4);
+    }
+
+    #[test]
+    fn test_critical_on_torso() {
+        let mut torso = LocationalDamage::new(HitLocation::Torso);
+
+        // Torso can't be severed
+        assert!(!torso.location.can_sever());
+
+        torso.add_wound(WoundSeverity::Critical);
+        assert!(torso.disabled);
+        assert!(!torso.severed); // Never severed
+
+        torso.add_wound(WoundSeverity::Critical);
+        assert!(torso.disabled);
+        assert!(!torso.severed); // Still not severed
+
+        assert_eq!(torso.penalty(), -4);
+    }
+
+    #[test]
+    fn test_single_critical_doesnt_sever() {
+        let mut arm = LocationalDamage::new(HitLocation::LeftArm);
+
+        arm.add_wound(WoundSeverity::Critical);
+        assert!(arm.disabled);
+        assert!(!arm.severed); // Only 1 critical, need 2 to sever
+
+        assert_eq!(arm.penalty(), -4);
+    }
+
+    #[test]
+    fn test_disabled_but_not_severed_penalty() {
+        let mut arm = LocationalDamage::new(HitLocation::RightArm);
+
+        // Severe wound disables arm
+        arm.add_wound(WoundSeverity::Severe);
+        assert!(arm.disabled);
+        assert!(!arm.severed);
+        assert_eq!(arm.penalty(), -4);
+
+        // Add light wounds - penalty from disabled, not individual wounds
+        arm.add_wound(WoundSeverity::Light);
+        assert_eq!(arm.penalty(), -4);
+    }
+
+    #[test]
+    fn test_locational_damage_initialization() {
+        let head = LocationalDamage::new(HitLocation::Head);
+        assert_eq!(head.light_wounds, 0);
+        assert_eq!(head.severe_wounds, 0);
+        assert_eq!(head.critical_wounds, 0);
+        assert!(!head.severed);
+        assert!(!head.disabled);
+        assert!(head.is_functional());
+        assert_eq!(head.penalty(), 0);
+    }
 }

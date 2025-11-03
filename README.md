@@ -1,11 +1,15 @@
 # Steelkilt - Draft RPG Combat System
 
-[![CI](https://github.com/tonybierman/steelkilt/workflows/CI/badge.svg)](https://github.com/tonybierman/steelkilt/actions)
-[![codecov](https://codecov.io/gh/tonybierman/steelkilt/branch/main/graph/badge.svg)](https://codecov.io/gh/tonybierman/steelkilt)
 
 A Rust implementation of the Draft 0.4 RPG rule set.
 
 Based on the "Draft 0.4 RPG Rule Set" by Pitt Murmann (1993-1998), this library provides a reusable combat system for tabletop role-playing games.
+
+[![CI](https://github.com/tonybierman/steelkilt/workflows/CI/badge.svg)](https://github.com/tonybierman/steelkilt/actions)
+[![Crates.io](https://img.shields.io/crates/v/steelkilt.svg)](https://crates.io/crates/steelkilt)
+[![Downloads](https://img.shields.io/crates/d/steelkilt.svg)](https://crates.io/crates/steelkilt)
+[![Documentation](https://docs.rs/steelkilt/badge.svg)](https://docs.rs/steelkilt)
+[![License](https://img.shields.io/crates/l/steelkilt.svg)](https://crates.io/crates/steelkilt)
 
 ## Features
 
@@ -92,20 +96,6 @@ if result.hit {
     println!("{} hit {} for {} damage!", result.attacker, result.defender, result.damage);
 }
 ```
-
-### Interactive Combat Simulation
-
-Run the interactive combat simulator:
-
-```bash
-cargo run --example combat_sim
-```
-
-The simulation features:
-- Pre-generated characters with different attributes and equipment
-- Turn-based combat with player input for defense actions
-- Real-time wound tracking and status updates
-- Detailed character sheets and combat logs
 
 ## Core Types
 
@@ -340,9 +330,22 @@ let penalty = mage.exhaustion_penalty();
 - **Animation** (Hard): Healing, physical enhancement
 - **Mentalism** (Hard): Mind reading, mental control
 
-## Examples
+## Console Examples
 
 The project includes several examples:
+
+### Interactive Combat Simulation
+
+Run the interactive combat simulator:
+
+```bash
+cargo run --example combat_sim
+```
+The simulation features:
+- Pre-generated characters with different attributes and equipment
+- Turn-based combat with player input for defense actions
+- Real-time wound tracking and status updates
+- Detailed character sheets and combat logs
 
 ### Quick Combat
 ```bash

@@ -2,20 +2,16 @@ mod combat;
 mod components;
 mod file_ops;
 mod main_menu;
-mod main_menu_plugin;
 mod management;
-mod management_plugin;
 mod selection;
-mod selection_plugin;
 mod state;
 
 use bevy::prelude::*;
 
-use combat::{spawn_combat_ui, CombatPlugin};
-use main_menu::spawn_main_menu_ui;
-use main_menu_plugin::MainMenuPlugin;
-use management_plugin::ManagementPlugin;
-use selection_plugin::SelectionPlugin;
+use combat::CombatPlugin;
+use main_menu::{spawn_main_menu_ui, MainMenuPlugin};
+use management::ManagementPlugin;
+use selection::SelectionPlugin;
 use state::GameState;
 
 fn main() {

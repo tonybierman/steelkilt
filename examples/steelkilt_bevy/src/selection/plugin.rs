@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::selection::{handle_selection_input, update_selection_ui};
+use super::input_handler::handle_selection_input;
+use super::ui::update_selection_ui;
 
 /// Plugin that handles character selection functionality
 ///

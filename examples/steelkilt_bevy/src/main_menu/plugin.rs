@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::main_menu::handle_main_menu_input;
+use super::input_handler::handle_main_menu_input;
 
 /// Plugin that handles main menu functionality
 ///

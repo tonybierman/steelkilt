@@ -98,7 +98,7 @@ if result.hit {
 Run the interactive combat simulator:
 
 ```bash
-cargo run --bin combat-sim
+cargo run --example combat_sim
 ```
 
 The simulation features:
@@ -106,30 +106,6 @@ The simulation features:
 - Turn-based combat with player input for defense actions
 - Real-time wound tracking and status updates
 - Detailed character sheets and combat logs
-
-## Project Structure
-
-```
-steelkilt/
-├── src/
-│   ├── lib.rs              # Core library implementation
-│   ├── modules/            # Advanced feature modules
-│   │   ├── mod.rs          # Module exports
-│   │   ├── skills.rs       # Skill development system
-│   │   ├── exhaustion.rs   # Exhaustion tracking
-│   │   ├── maneuvers.rs    # Combat maneuvers
-│   │   ├── hit_location.rs # Hit location tracking
-│   │   ├── ranged_combat.rs # Ranged combat mechanics
-│   │   └── magic.rs        # Magic system
-│   └── bin/
-│       └── combat_sim.rs   # Interactive combat simulation
-├── examples/
-│   ├── quick_combat.rs     # Basic combat example
-│   ├── advanced_features.rs # Showcase of all advanced features
-│   └── magic_combat.rs     # Wizard duel simulation
-├── Cargo.toml
-└── README.md
-```
 
 ## Core Types
 
@@ -159,24 +135,6 @@ Run the test suite:
 cargo test
 ```
 
-The project includes **39 comprehensive tests** covering:
-
-**Core Combat System**:
-- Dice rolling (d10 range validation)
-- Attribute calculations
-- Wound stacking mechanics
-- Death thresholds
-
-**Advanced Features**:
-- Skill progression and cost calculation (6 tests)
-- Exhaustion levels and recovery (4 tests)
-- Combat maneuvers and modifiers (6 tests)
-- Hit location determination and damage (6 tests)
-- Ranged combat mechanics and modifiers (7 tests)
-- Magic system, spell casting, and exhaustion (7 tests)
-
-All tests validate proper implementation of Draft 0.4 RPG rules.
-
 ## Draft RPG Rules Reference
 
 This implementation is based on specific rules from Draft 0.4:
@@ -203,35 +161,9 @@ This implementation is based on specific rules from Draft 0.4:
 
 This implementation is released under the MIT license. The original Draft 0.4 RPG Rule Set was released under the OpenContent License (OPL) Version 1.0.
 
-## Example Combat Output
-
-```
-=== DRAFT RPG COMBAT SIMULATOR ===
-
-╔═══════════════════════════════════════╗
-║ Aldric the Bold                       ║
-╠═══════════════════════════════════════╣
-║ PHYSICAL ATTRIBUTES:                  ║
-║   STR: 8   DEX: 6   CON: 7            ║
-║ Weapon: Long Sword                    ║
-║   Damage: 5                           ║
-║ Armor: Chain Mail                     ║
-║   Protection: 3                       ║
-╚═══════════════════════════════════════╝
-
---- ROUND 1 ---
-
-Aldric the Bold's turn to attack!
-How does Grimwald Ironfist defend? [P]arry or [D]odge? p
-
->>> Attack: Aldric the Bold rolls 14 vs Grimwald Ironfist's defense 11
->>> HIT! 6 damage dealt
->>> Severe wound inflicted!
-```
-
 ## Advanced Features
 
-The library now includes comprehensive implementations of advanced Draft RPG mechanics:
+The library includes implementations of advanced Draft RPG mechanics:
 
 ### 1. Skill Development & Progression (Section 3.13)
 
@@ -410,7 +342,7 @@ let penalty = mage.exhaustion_penalty();
 
 ## Examples
 
-The project includes comprehensive examples:
+The project includes several examples:
 
 ### Quick Combat
 ```bash
@@ -422,7 +354,7 @@ Basic melee combat demonstration showing the core combat system in action.
 ```bash
 cargo run --example advanced_features
 ```
-Comprehensive showcase of all advanced features:
+Showcase of dvanced features:
 - Skill progression with different difficulties
 - Combat maneuvers (charge, defensive position, etc.)
 - Exhaustion tracking during extended combat

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::management::{handle_management_input, update_management_ui};
+use super::input_handler::handle_management_input;
+use super::ui::update_management_ui;
 use crate::state::ManagementState;
 
 /// Plugin that handles combatant management functionality

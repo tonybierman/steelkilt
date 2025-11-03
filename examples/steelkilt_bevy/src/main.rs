@@ -2,17 +2,21 @@ mod combat;
 mod components;
 mod file_ops;
 mod main_menu;
+mod main_menu_plugin;
 mod management;
+mod management_plugin;
 mod selection;
+mod selection_plugin;
 mod state;
 
 use bevy::prelude::*;
 
-use combat::{handle_combat_input, update_combat, update_combat_ui};
-use main_menu::{handle_main_menu_input, spawn_main_menu_ui};
-use management::{handle_management_input, update_management_ui};
-use selection::{handle_selection_input, update_selection_ui};
-use state::{CombatState, GameState, ManagementState};
+use combat::{spawn_combat_ui, CombatPlugin};
+use main_menu::spawn_main_menu_ui;
+use main_menu_plugin::MainMenuPlugin;
+use management_plugin::ManagementPlugin;
+use selection_plugin::SelectionPlugin;
+use state::GameState;
 
 fn main() {
     App::new()
@@ -24,18 +28,17 @@ fn main() {
             }),
             ..default()
         }))
+        // Global game state
         .init_resource::<GameState>()
-        .init_resource::<CombatState>()
-        .init_resource::<ManagementState>()
+        // Feature plugins (each handles its own systems and resources)
+        .add_plugins((
+            MainMenuPlugin,
+            ManagementPlugin,
+            SelectionPlugin,
+            CombatPlugin,
+        ))
+        // Startup system
         .add_systems(Startup, setup)
-        .add_systems(Update, handle_main_menu_input)
-        .add_systems(Update, handle_management_input)
-        .add_systems(Update, handle_selection_input)
-        .add_systems(Update, handle_combat_input)
-        .add_systems(Update, update_combat)
-        .add_systems(Update, update_management_ui)
-        .add_systems(Update, update_selection_ui)
-        .add_systems(Update, update_combat_ui)
         .run();
 }
 

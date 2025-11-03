@@ -8,6 +8,7 @@ use steelkilt::Character;
 pub struct Fighter {
     pub character: Character,
     pub is_player_one: bool,
+    #[allow(dead_code)]
     pub ranged_state: Option<RangedAttackState>,
 }
 

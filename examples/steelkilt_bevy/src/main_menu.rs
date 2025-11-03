@@ -73,7 +73,13 @@ pub fn handle_main_menu_input(
         }
         spawn_management_ui(&mut commands);
     } else if keyboard.just_pressed(KeyCode::KeyQ) {
-        app_exit_events.send(AppExit::Success);
+        // Don't process quit if we just came from combat (prevents double-processing the same keypress)
+        if game_state.previous != Some(GameStateEnum::Combat) {
+            app_exit_events.send(AppExit::Success);
+        } else {
+            // Clear the previous state so Q works normally next time
+            game_state.previous = None;
+        }
     }
 }
 

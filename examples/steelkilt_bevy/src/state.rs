@@ -92,6 +92,7 @@ pub enum CombatMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[allow(dead_code)]
 pub enum RangedAttackPhase {
     ChoosingMode, // Deciding whether to use ranged or melee
     Preparing,    // Drawing and readying weapon

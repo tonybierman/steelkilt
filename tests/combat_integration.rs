@@ -145,7 +145,7 @@ fn test_wound_stacking() {
 fn test_armor_reduces_damage() {
     let attributes = Attributes::new(7, 7, 7, 7, 7, 7, 7, 7, 7);
 
-    let mut attacker = Character::new(
+    let attacker = Character::new(
         "Attacker",
         attributes,
         10,

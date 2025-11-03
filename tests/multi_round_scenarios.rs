@@ -70,8 +70,7 @@ fn test_full_combat_until_death() {
     // Verify at least a few rounds occurred
     assert!(rounds > 0, "At least one round should have occurred");
 
-    // The winner should still be alive (unless both died somehow or hit max rounds)
-    let winner_exists = warrior1.is_alive() || warrior2.is_alive();
+    // The combat should conclude with one fighter defeated
     let combat_concluded = !warrior1.is_alive() || !warrior2.is_alive();
 
     assert!(

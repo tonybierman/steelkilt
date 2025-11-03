@@ -331,10 +331,10 @@ fn test_exhaustion_level_thresholds() {
 fn test_spell_range_types() {
     let personal = SpellRange::Personal;
     let touch = SpellRange::Touch;
-    let short = SpellRange::Short(10);
-    let medium = SpellRange::Medium(50);
-    let long = SpellRange::Long(100);
-    let unlimited = SpellRange::Unlimited;
+    let _short = SpellRange::Short(10);
+    let _medium = SpellRange::Medium(50);
+    let _long = SpellRange::Long(100);
+    let _unlimited = SpellRange::Unlimited;
 
     // Just verify they can be created and used
     let spell1 = Spell {
@@ -370,10 +370,10 @@ fn test_spell_range_types() {
 #[test]
 fn test_spell_duration_types() {
     let instant = SpellDuration::Instant;
-    let rounds = SpellDuration::Rounds(10);
-    let minutes = SpellDuration::Minutes(60);
-    let hours = SpellDuration::Hours(8);
-    let permanent = SpellDuration::Permanent;
+    let _rounds = SpellDuration::Rounds(10);
+    let _minutes = SpellDuration::Minutes(60);
+    let _hours = SpellDuration::Hours(8);
+    let _permanent = SpellDuration::Permanent;
     let concentration = SpellDuration::Permanent;
 
     // Create spells with different durations

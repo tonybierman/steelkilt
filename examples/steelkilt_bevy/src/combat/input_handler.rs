@@ -113,6 +113,11 @@ pub fn handle_combat_input(
 
         // Handle distance changes (1=Close, 2=Medium, 3=Long)
         if keyboard.just_pressed(KeyCode::Digit1) {
+            
+            combat_state.combat_mode = CombatMode::Melee;
+            combat_state.ranged_phase = None;
+            combat_state.aiming_rounds = 0;
+
             combat_state.distance = Distance::Close;
             combat_state
                 .combat_log
@@ -120,6 +125,10 @@ pub fn handle_combat_input(
             return;
         }
         if keyboard.just_pressed(KeyCode::Digit2) {
+
+            combat_state.combat_mode = CombatMode::Ranged;
+            combat_state.ranged_phase = Some(RangedAttackPhase::Preparing);
+
             combat_state.distance = Distance::Medium;
             combat_state
                 .combat_log
@@ -127,6 +136,10 @@ pub fn handle_combat_input(
             return;
         }
         if keyboard.just_pressed(KeyCode::Digit3) {
+
+            combat_state.combat_mode = CombatMode::Ranged;
+            combat_state.ranged_phase = Some(RangedAttackPhase::Preparing);
+
             combat_state.distance = Distance::Long;
             combat_state
                 .combat_log

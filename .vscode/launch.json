@@ -1,0 +1,165 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug unit tests in library 'steelkilt'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test"
+                ]
+            }
+        },
+        {
+            "name": "Debug example 'advanced_features'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--example=advanced_features"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in example 'advanced_features'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--example=advanced_features"
+                ]
+            }
+        },
+        {
+            "name": "Debug example 'combat_sim'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--example=combat_sim"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in example 'combat_sim'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--example=combat_sim"
+                ]
+            }
+        },
+        {
+            "name": "Debug example 'magic_combat'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--example=magic_combat"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in example 'magic_combat'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--example=magic_combat"
+                ]
+            }
+        },
+        {
+            "name": "Debug example 'quick_combat'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--example=quick_combat"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in example 'quick_combat'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--example=quick_combat"
+                ]
+            }
+        },
+        {
+            "name": "Debug integration test 'combat_integration'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--test=combat_integration"
+                ]
+            }
+        },
+        {
+            "name": "Debug integration test 'magic_integration'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--test=magic_integration"
+                ]
+            }
+        },
+        {
+            "name": "Debug integration test 'multi_round_scenarios'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--test=multi_round_scenarios"
+                ]
+            }
+        },
+        {
+            "name": "Debug integration test 'ranged_combat_integration'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--test=ranged_combat_integration"
+                ]
+            }
+        },
+        {
+            "name": "Debug integration test 'skills_integration'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--test=skills_integration"
+                ]
+            }
+        }
+    ]
+}

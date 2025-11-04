@@ -235,30 +235,36 @@ pub fn update_combat_ui(
             ));
 
             if combat_state.combat_mode == CombatMode::Ranged {
-                // Ranged combat instructions
-                if let Some(phase) = combat_state.ranged_phase {
-                    match phase {
-                        RangedAttackPhase::Preparing => {
-                            instructions.push_str("Ranged weapon ready!\n");
-                            instructions.push_str(
-                                "[A] Aim for bonus | [F] Fire immediately | [M] Switch to melee",
-                            );
-                        }
-                        RangedAttackPhase::Aiming => {
-                            instructions.push_str(&format!(
-                                "Aiming... (+{} bonus)\n",
-                                combat_state.aiming_rounds
-                            ));
-                            instructions.push_str("[A] Continue aiming | [F] Fire shot");
-                        }
-                        RangedAttackPhase::ReadyToFire => {
-                            instructions.push_str("Firing ranged weapon...");
-                        }
-                        _ => {
-                            instructions.push_str("Ranged combat in progress...");
+                if attacker_has_ranged {
+                    // Ranged combat instructions
+                    if let Some(phase) = combat_state.ranged_phase {
+                        match phase {
+                            RangedAttackPhase::Preparing => {
+                                instructions.push_str("Ranged weapon ready!\n");
+                                instructions.push_str(
+                                    "[A] Aim for bonus | [F] Fire immediately | [M] Switch to melee",
+                                );
+                            }
+                            RangedAttackPhase::Aiming => {
+                                instructions.push_str(&format!(
+                                    "Aiming... (+{} bonus)\n",
+                                    combat_state.aiming_rounds
+                                ));
+                                instructions.push_str("[A] Continue aiming | [F] Fire shot");
+                            }
+                            RangedAttackPhase::ReadyToFire => {
+                                instructions.push_str("Firing ranged weapon...");
+                            }
+                            _ => {
+                                instructions.push_str("Ranged combat in progress...");
+                            }
                         }
                     }
                 }
+                else {
+                    instructions.push_str("Attacker cannot equip a ranged weapon\n");
+                }
+
             } else {
                 // Melee combat instructions
                 let defender_name = fighters

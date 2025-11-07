@@ -1,6 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
         "./examples/steelkilt_bevy/Cargo.toml",
+        "./examples/steelkilt_sim/Cargo.toml",
         "./Cargo.toml",
     ]
 }

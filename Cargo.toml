@@ -15,3 +15,7 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 default = []
 serde = ["dep:serde"]
 
+[[example]]
+name = "steelkilt_sim"
+path = "examples/steelkilt_sim/src/main.rs"
+

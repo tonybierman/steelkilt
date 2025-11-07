@@ -9,8 +9,77 @@
 
 use steelkilt::*;
 use steelkilt::modules::*;
+use std::collections::HashMap;
+use std::io::{self, Write};
+
+/// Generic console prompt that returns a user-selected value from a dictionary of options
+fn get_user_choice<T: Clone + PartialEq + std::fmt::Display>(
+    prompt_prefix: &str,
+    options: &HashMap<char, T>,
+    default_value: T,
+) -> T {
+    let prompt_suffix = generate_prompt_suffix(options, &default_value);
+    let full_prompt = format!("{} {}: ", prompt_prefix, prompt_suffix);
+
+    loop {
+        print!("{}", full_prompt);
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        match io::stdin().read_line(&mut input) {
+            Ok(_) => {
+                let input = input.trim().to_uppercase();
+
+                if input.is_empty() {
+                    return default_value.clone();
+                }
+
+                if let Some(first_char) = input.chars().next() {
+                    if let Some(value) = options.get(&first_char) {
+                        return value.clone();
+                    }
+                }
+
+                println!("Invalid option. Please try again.");
+            }
+            Err(_) => {
+                println!("Error reading input. Please try again.");
+            }
+        }
+    }
+}
+
+/// Generates the prompt suffix showing available options and default value
+fn generate_prompt_suffix<T: PartialEq + std::fmt::Display>(
+    options: &HashMap<char, T>,
+    default_value: &T,
+) -> String {
+    let mut parts: Vec<String> = options
+        .iter()
+        .map(|(&key, value)| {
+            let value_str = value.to_string();
+            format!("[{}]{}", key, value_str)
+        })
+        .collect();
+
+    parts.sort();
+
+    let default_value_str = default_value.to_string();
+    format!(
+        "Select {} (default: {})",
+        parts.join(", "),
+        default_value_str
+    )
+}
 
 fn main() {
+
+    let mut manuever_options = HashMap::new();
+    manuever_options.insert('N', CombatManeuver::Normal);
+    manuever_options.insert('C', CombatManeuver::Charge);
+    manuever_options.insert('A', CombatManeuver::AllOutAttack);
+    manuever_options.insert('D', CombatManeuver::DefensivePosition);
+
     println!("=== Advanced Combat Simulation ===");
     println!("Demonstrating: Skills, Stances, Exhaustion, Hit Locations\n");
 
@@ -50,46 +119,54 @@ fn main() {
         knight_exhaustion.add_points(1);
         barbarian_exhaustion.add_points(1);
 
+        let result = get_user_choice(
+            "Stance?",
+            &manuever_options,
+            CombatManeuver::Normal,
+        );
+
+        knight_stance.set_maneuver(result).unwrap();
+
         // Knights tactical choice based on round
-        match round {
-            1 => {
-                // Knight starts defensively
-                knight_stance.set_maneuver(CombatManeuver::DefensivePosition).unwrap();
-                println!("{} takes Defensive Position (+2 defense, cannot attack)", knight.name);
-            },
-            2 => {
-                // Barbarian charges
-                barbarian_stance.charged_this_round = true;
-                barbarian_stance.set_maneuver(CombatManeuver::Charge).unwrap();
-                println!("{} CHARGES! (+1 attack, +1 damage, -2 defense)", barbarian.name);
-            },
-            3 => {
-                // Knight recovers, attacks normally
-                knight_stance.set_maneuver(CombatManeuver::Normal).unwrap();
-            },
-            4 => {
-                // Knight starts aiming for precise strike
-                knight_stance.start_aiming();
-                println!("{} begins aiming for a precise strike...", knight.name);
-            },
-            5 => {
-                // Knight executes aimed attack
-                knight_stance.set_maneuver(CombatManeuver::AimedAttack).unwrap();
-                println!("{} executes Aimed Attack! (-2 attack, +2 damage)", knight.name);
-            },
-            6..=8 => {
-                // Barbarian goes all-out
-                if round == 6 {
-                    barbarian_stance.set_maneuver(CombatManeuver::AllOutAttack).unwrap();
-                    println!("{} goes All-Out Attack! (+2 attack, -4 defense)", barbarian.name);
-                }
-            },
-            _ => {
-                // Reset to normal combat
-                knight_stance.set_maneuver(CombatManeuver::Normal).unwrap();
-                barbarian_stance.set_maneuver(CombatManeuver::Normal).unwrap();
-            }
-        }
+        // match round {
+        //     1 => {
+        //         // Knight starts defensively
+        //         knight_stance.set_maneuver(CombatManeuver::DefensivePosition).unwrap();
+        //         println!("{} takes Defensive Position (+2 defense, cannot attack)", knight.name);
+        //     },
+        //     2 => {
+        //         // Barbarian charges
+        //         barbarian_stance.charged_this_round = true;
+        //         barbarian_stance.set_maneuver(CombatManeuver::Charge).unwrap();
+        //         println!("{} CHARGES! (+1 attack, +1 damage, -2 defense)", barbarian.name);
+        //     },
+        //     3 => {
+        //         // Knight recovers, attacks normally
+        //         knight_stance.set_maneuver(CombatManeuver::Normal).unwrap();
+        //     },
+        //     4 => {
+        //         // Knight starts aiming for precise strike
+        //         knight_stance.start_aiming();
+        //         println!("{} begins aiming for a precise strike...", knight.name);
+        //     },
+        //     5 => {
+        //         // Knight executes aimed attack
+        //         knight_stance.set_maneuver(CombatManeuver::AimedAttack).unwrap();
+        //         println!("{} executes Aimed Attack! (-2 attack, +2 damage)", knight.name);
+        //     },
+        //     6..=8 => {
+        //         // Barbarian goes all-out
+        //         if round == 6 {
+        //             barbarian_stance.set_maneuver(CombatManeuver::AllOutAttack).unwrap();
+        //             println!("{} goes All-Out Attack! (+2 attack, -4 defense)", barbarian.name);
+        //         }
+        //     },
+        //     _ => {
+        //         // Reset to normal combat
+        //         knight_stance.set_maneuver(CombatManeuver::Normal).unwrap();
+        //         barbarian_stance.set_maneuver(CombatManeuver::Normal).unwrap();
+        //     }
+        // }
 
         // Knight's turn (if can attack with current stance)
         if knight_stance.current_maneuver.can_attack() {

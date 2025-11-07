@@ -161,5 +161,17 @@
                 ]
             }
         }
+        ,
+        {
+            "name": "Debug sim example",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--example=steelkilt_sim"
+                ]
+            }
+        }
     ]
 }

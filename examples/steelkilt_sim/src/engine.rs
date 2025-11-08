@@ -4,6 +4,7 @@ use crate::combat::*;
 use crate::fighters::*;
 use std::collections::HashMap;
 use steelkilt::modules::*;
+use inquire::error::InquireResult;
 
 pub fn run_combat_rounds(args: Vec<String>) {
 
@@ -28,22 +29,17 @@ pub fn run_combat_rounds(args: Vec<String>) {
         vec![&knight_state.exhaustion, &barbarian_state.exhaustion]
     );
 
-    // Display initial fighter status
-    // print_fighter_status(
-    //     &knight_state.character,
-    //     &knight_state.skills,
-    //     &knight_state.exhaustion,
-    // );
-    // print_fighter_status(
-    //     &barbarian_state.character,
-    //     &barbarian_state.skills,
-    //     &barbarian_state.exhaustion,
-    // );
-
     print_section_divider("COMBAT BEGINS!");
 
     // Initialize combat state manager
     let mut combat = CombatState::new(knight_state, barbarian_state);
+
+fn select_maneuver() -> InquireResult<CombatManeuver> {
+    let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
+        .prompt()?;
+    println!("Selected: {}", chosen_maneuver);
+    Ok(chosen_maneuver)
+}
 
     // Main combat loop
     while combat.combat_continues() && combat.round < 10 {
@@ -51,13 +47,16 @@ pub fn run_combat_rounds(args: Vec<String>) {
 
         println!("\n--- ROUND {} ---", combat.round);
 
-        // Get user input for knight's combat stance
-        let chosen_maneuver = get_user_choice(
-            "Knight's stance?",
-            &maneuver_options,
-            CombatManeuver::Normal,
-        );
-
+        // Get the maneuver choice
+        let chosen_maneuver: CombatManeuver = match select_maneuver() {
+                Ok(maneuver) => maneuver,
+                Err(e) => {
+                    println!("Error selecting maneuver: {}", e);
+                    continue;
+                }
+            };
+        
+        // Set the maneuver
         if let Err(e) = combat.knight.set_maneuver(chosen_maneuver) {
             println!("Error setting maneuver: {}", e);
             continue;
@@ -93,13 +92,18 @@ pub fn run_combat_rounds(args: Vec<String>) {
 
         // Display round status
         print_round_status(
-            &combat.knight.character,
-            &combat.barbarian.character,
-            &combat.knight.exhaustion,
-            &combat.barbarian.exhaustion,
-            &combat.knight.locations,
-            &combat.barbarian.locations,
+            vec![&combat.knight.character, &combat.barbarian.character],
+            vec![&combat.knight.exhaustion, &combat.barbarian.exhaustion]
         );
+
+        // print_round_status(
+        //     &combat.knight.character,
+        //     &combat.barbarian.character,
+        //     &combat.knight.exhaustion,
+        //     &combat.barbarian.exhaustion,
+        //     &combat.knight.locations,
+        //     &combat.barbarian.locations,
+        // );
     }
 
     // Final summary

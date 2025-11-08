@@ -348,7 +348,7 @@ dependencies = [
  "bevy_transform",
  "bevy_utils",
  "blake3",
- "derive_more",
+ "derive_more 1.0.0",
  "downcast-rs",
  "either",
  "petgraph",
@@ -372,7 +372,7 @@ dependencies = [
  "bevy_utils",
  "console_error_panic_hook",
  "ctrlc",
- "derive_more",
+ "derive_more 1.0.0",
  "downcast-rs",
  "wasm-bindgen",
  "web-sys",
@@ -398,7 +398,7 @@ dependencies = [
  "bitflags 2.10.0",
  "blake3",
  "crossbeam-channel",
- "derive_more",
+ "derive_more 1.0.0",
  "disqualified",
  "downcast-rs",
  "either",
@@ -455,7 +455,7 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "encase",
  "serde",
  "wgpu-types",
@@ -495,7 +495,7 @@ dependencies = [
  "bevy_utils",
  "bevy_window",
  "bitflags 2.10.0",
- "derive_more",
+ "derive_more 1.0.0",
  "nonmax",
  "radsort",
  "serde",
@@ -543,7 +543,7 @@ dependencies = [
  "bevy_utils",
  "bitflags 2.10.0",
  "concurrent-queue",
- "derive_more",
+ "derive_more 1.0.0",
  "disqualified",
  "fixedbitset 0.5.7",
  "nonmax",
@@ -585,7 +585,7 @@ dependencies = [
  "bevy_input",
  "bevy_time",
  "bevy_utils",
- "derive_more",
+ "derive_more 1.0.0",
  "gilrs",
 ]
 
@@ -649,7 +649,7 @@ dependencies = [
  "bevy_tasks",
  "bevy_transform",
  "bevy_utils",
- "derive_more",
+ "derive_more 1.0.0",
  "gltf",
  "percent-encoding",
  "serde",
@@ -685,7 +685,7 @@ dependencies = [
  "bevy_utils",
  "bitflags 2.10.0",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "futures-lite",
  "image",
  "ktx2",
@@ -706,7 +706,7 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "bevy_utils",
- "derive_more",
+ "derive_more 1.0.0",
  "smol_str",
 ]
 
@@ -788,7 +788,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c2650169161b64f9a93e41f13253701fdf971dc95265ed667d17bea6d2a334f"
 dependencies = [
  "bevy_reflect",
- "derive_more",
+ "derive_more 1.0.0",
  "glam",
  "itertools",
  "rand",
@@ -814,7 +814,7 @@ dependencies = [
  "bevy_utils",
  "bitflags 2.10.0",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "hexasphere",
  "serde",
  "wgpu",
@@ -850,7 +850,7 @@ dependencies = [
  "bevy_window",
  "bitflags 2.10.0",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "fixedbitset 0.5.7",
  "nonmax",
  "radsort",
@@ -898,7 +898,7 @@ dependencies = [
  "bevy_ptr",
  "bevy_reflect_derive",
  "bevy_utils",
- "derive_more",
+ "derive_more 1.0.0",
  "disqualified",
  "downcast-rs",
  "erased-serde",
@@ -951,7 +951,7 @@ dependencies = [
  "bevy_window",
  "bytemuck",
  "codespan-reporting",
- "derive_more",
+ "derive_more 1.0.0",
  "downcast-rs",
  "encase",
  "futures-lite",
@@ -997,7 +997,7 @@ dependencies = [
  "bevy_render",
  "bevy_transform",
  "bevy_utils",
- "derive_more",
+ "derive_more 1.0.0",
  "serde",
  "uuid",
 ]
@@ -1024,7 +1024,7 @@ dependencies = [
  "bevy_window",
  "bitflags 2.10.0",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "fixedbitset 0.5.7",
  "guillotiere",
  "nonmax",
@@ -1094,7 +1094,7 @@ dependencies = [
  "bevy_utils",
  "bevy_window",
  "cosmic-text",
- "derive_more",
+ "derive_more 1.0.0",
  "serde",
  "smallvec",
  "sys-locale",
@@ -1125,7 +1125,7 @@ dependencies = [
  "bevy_hierarchy",
  "bevy_math",
  "bevy_reflect",
- "derive_more",
+ "derive_more 1.0.0",
 ]
 
 [[package]]
@@ -1155,7 +1155,7 @@ dependencies = [
  "bevy_utils",
  "bevy_window",
  "bytemuck",
- "derive_more",
+ "derive_more 1.0.0",
  "nonmax",
  "smallvec",
  "taffy",
@@ -1492,7 +1492,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "termcolor",
- "unicode-width",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -1578,6 +1578,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1aaf9b65849a68662ac6c0810c8893a765c960b907dd7cfab9c4a50bf764fbc"
 dependencies = [
  "const_soft_float",
+]
+
+[[package]]
+name = "convert_case"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb402b8d4c85569410425650ce3eddc7d698ed96d39a73f941b08fb63082f1e7"
+dependencies = [
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -1740,6 +1749,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
+name = "crossterm"
+version = "0.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b9f2e4c67f833b660cdb0a3523065869fb35570177239812ed4c905aeff87b"
+dependencies = [
+ "bitflags 2.10.0",
+ "crossterm_winapi",
+ "derive_more 2.0.1",
+ "document-features",
+ "mio",
+ "parking_lot",
+ "rustix 1.1.2",
+ "signal-hook",
+ "signal-hook-mio",
+ "winapi",
+]
+
+[[package]]
+name = "crossterm_winapi"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acdd7c62a3665c7f6830a51635d9ac9b23ed385797f70a83bb8bafe9c572ab2b"
+dependencies = [
+ "winapi",
+]
+
+[[package]]
 name = "crunchy"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1780,7 +1816,16 @@ version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a9b99b9cbbe49445b21764dc0625032a89b145a2642e67603e1c936f5458d05"
 dependencies = [
- "derive_more-impl",
+ "derive_more-impl 1.0.0",
+]
+
+[[package]]
+name = "derive_more"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "093242cf7570c207c83073cf82f79706fe7b8317e98620a47d5be7c3d8497678"
+dependencies = [
+ "derive_more-impl 2.0.1",
 ]
 
 [[package]]
@@ -1793,6 +1838,18 @@ dependencies = [
  "quote",
  "syn",
  "unicode-xid",
+]
+
+[[package]]
+name = "derive_more-impl"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bda628edc44c4bb645fbe0f758797143e4e07926f7ebf4e9bdfbd3d2ce621df3"
+dependencies = [
+ "convert_case",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1848,6 +1905,12 @@ name = "dpi"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
+
+[[package]]
+name = "dyn-clone"
+version = "1.0.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
 name = "either"
@@ -2096,6 +2159,15 @@ dependencies = [
  "futures-io",
  "parking",
  "pin-project-lite",
+]
+
+[[package]]
+name = "fuzzy-matcher"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54614a3312934d066701a80f20f15fa3b56d67ac7722b39eea5b4c9dd1d66c94"
+dependencies = [
+ "thread_local",
 ]
 
 [[package]]
@@ -2427,6 +2499,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "inquire"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2628910d0114e9139056161d8644a2026be7b117f8498943f9437748b04c9e0a"
+dependencies = [
+ "bitflags 2.10.0",
+ "crossterm",
+ "dyn-clone",
+ "fuzzy-matcher",
+ "unicode-segmentation",
+ "unicode-width 0.2.2",
+]
+
+[[package]]
+name = "inquire-derive"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "807533895ea669bc861ac63c56fb6cff6e4ed049dff1550c39298c9864ffa561"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "io-kit-sys"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2683,6 +2780,18 @@ checksum = "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316"
 dependencies = [
  "adler2",
  "simd-adler32",
+]
+
+[[package]]
+name = "mio"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69d83b0086dc8ecf3ce9ae2874b2d1290252e2a30720bea58a5c6639b0092873"
+dependencies = [
+ "libc",
+ "log",
+ "wasi",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3721,6 +3830,36 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
+name = "signal-hook"
+version = "0.3.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
+dependencies = [
+ "libc",
+ "signal-hook-registry",
+]
+
+[[package]]
+name = "signal-hook-mio"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b75a19a7a740b25bc7944bdee6172368f988763b744e3d4dfe753f6b4ece40cc"
+dependencies = [
+ "libc",
+ "mio",
+ "signal-hook",
+]
+
+[[package]]
+name = "signal-hook-registry"
+version = "1.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2a4719bff48cee6b39d12c020eeb490953ad2443b7055bd0b21fca26bd8c28b"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "simd-adler32"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3791,6 +3930,8 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "steelkilt"
 version = "0.1.0"
 dependencies = [
+ "inquire",
+ "inquire-derive",
  "rand",
  "serde",
 ]
@@ -4152,6 +4293,12 @@ name = "unicode-width"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
+
+[[package]]
+name = "unicode-width"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 
 [[package]]
 name = "unicode-xid"

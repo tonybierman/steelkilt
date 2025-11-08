@@ -1,9 +1,10 @@
 //! Special combat maneuvers based on Draft RPG Section 4.22
 
 use std::fmt;
+use inquire_derive::Selectable;
 
 /// Special combat maneuvers that characters can perform
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Selectable)]
 pub enum CombatManeuver {
     /// Normal attack with no special effects
     Normal,

@@ -2,19 +2,10 @@ use crate::state::*;
 use crate::ui::*;
 use crate::combat::*;
 use crate::fighters::*;
-use std::collections::HashMap;
 use steelkilt::modules::*;
 use inquire::error::InquireResult;
 
 pub fn run_combat_rounds(args: Vec<String>) {
-
-    // Setup combat maneuver options for user input
-    let mut maneuver_options = HashMap::new();
-    maneuver_options.insert('N', CombatManeuver::Normal);
-    maneuver_options.insert('C', CombatManeuver::Charge);
-    maneuver_options.insert('A', CombatManeuver::AllOutAttack);
-    maneuver_options.insert('D', CombatManeuver::DefensivePosition);
-
     print_combat_header();
 
     // Initialize fighters with their skills and combat state
@@ -34,12 +25,12 @@ pub fn run_combat_rounds(args: Vec<String>) {
     // Initialize combat state manager
     let mut combat = CombatState::new(knight_state, barbarian_state);
 
-fn select_maneuver() -> InquireResult<CombatManeuver> {
-    let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
-        .prompt()?;
-    println!("Selected: {}", chosen_maneuver);
-    Ok(chosen_maneuver)
-}
+    fn select_maneuver() -> InquireResult<CombatManeuver> {
+        let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
+            .prompt()?;
+        println!("Selected: {}", chosen_maneuver);
+        Ok(chosen_maneuver)
+    }
 
     // Main combat loop
     while combat.combat_continues() && combat.round < 10 {
@@ -93,7 +84,8 @@ fn select_maneuver() -> InquireResult<CombatManeuver> {
         // Display round status
         print_round_status(
             vec![&combat.knight.character, &combat.barbarian.character],
-            vec![&combat.knight.exhaustion, &combat.barbarian.exhaustion]
+            vec![&combat.knight.exhaustion, &combat.barbarian.exhaustion],
+            vec![&combat.knight.locations, &combat.barbarian.locations]
         );
 
         // print_round_status(

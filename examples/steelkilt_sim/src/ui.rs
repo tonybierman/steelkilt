@@ -66,7 +66,7 @@ pub fn print_fighters(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhau
 }
 
 /// Print round-by-round status summary
-pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>){
+pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
     println!("\n{}", "-".repeat(70));
     println!("Status:");
 
@@ -79,6 +79,7 @@ pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaust
             &characters[0].wounds.severe.to_string(),
             &characters[0].wounds.critical.to_string(),
             &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
+            &locations[0].iter().filter(|l| l.disabled).count().to_string()
         ]);
     println!("{table}\n");
 

@@ -67,9 +67,6 @@ pub fn print_fighters(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhau
 
 /// Print round-by-round status summary
 pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
-    println!("\n{}", "-".repeat(70));
-    println!("Status:");
-
     let mut table = Table::new();
     table
         .set_header(vec!["Name", "Light", "Severe", "Critical", "Exhaustion", "Disabled"])
@@ -80,30 +77,16 @@ pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaust
             &characters[0].wounds.critical.to_string(),
             &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
             &locations[0].iter().filter(|l| l.disabled).count().to_string()
+        ])
+        .add_row(vec![
+            &characters[1].name,
+            &characters[1].wounds.light.to_string(),
+            &characters[1].wounds.severe.to_string(),
+            &characters[1].wounds.critical.to_string(),
+            &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
+            &locations[1].iter().filter(|l| l.disabled).count().to_string()
         ]);
     println!("{table}\n");
-
-    // println!(
-    //     "  {}: Wounds(L:{} S:{} C:{}) Exhaustion({} {}) Disabled:{}",
-    //     knight.name,
-    //     knight.wounds.light,
-    //     knight.wounds.severe,
-    //     knight.wounds.critical,
-    //     knight_exhaustion.points,
-    //     knight_exhaustion.status(),
-    //     knight_locations.iter().filter(|l| l.disabled).count(),
-    // );
-
-    // println!(
-    //     "  {}: Wounds(L:{} S:{} C:{}) Exhaustion({} {}) Disabled:{}",
-    //     barbarian.name,
-    //     barbarian.wounds.light,
-    //     barbarian.wounds.severe,
-    //     barbarian.wounds.critical,
-    //     barbarian_exhaustion.points,
-    //     barbarian_exhaustion.status(),
-    //     barbarian_locations.iter().filter(|l| l.disabled).count(),
-    // );
 }
 
 /// Print final post-combat status with detailed wound and location information

@@ -12,13 +12,13 @@ pub fn run_combat_rounds(args: Vec<String>) {
     let knight_state = FighterState::new(create_knight(), create_knight_skills());
     let barbarian_state = FighterState::new(create_barbarian(), create_barbarian_skills());
 
-    print_section_divider("COMBATANTS' DETAILS");
-
-    print_fighters(
-        vec![&knight_state.character, &barbarian_state.character],
-        vec![&knight_state.skills, &barbarian_state.skills],
-        vec![&knight_state.exhaustion, &barbarian_state.exhaustion]
-    );
+    // TODO: Make a menu option to show these
+    // print_section_divider("COMBATANTS' DETAILS");
+    // print_fighters(
+    //     vec![&knight_state.character, &barbarian_state.character],
+    //     vec![&knight_state.skills, &barbarian_state.skills],
+    //     vec![&knight_state.exhaustion, &barbarian_state.exhaustion]
+    // );
 
     print_section_divider("COMBAT BEGINS!");
 
@@ -82,20 +82,12 @@ pub fn run_combat_rounds(args: Vec<String>) {
         combat.end_round();
 
         // Display round status
+        println!("\n--- END OF ROUND {} STATUS SUMMARY---", combat.round);
         print_round_status(
             vec![&combat.knight.character, &combat.barbarian.character],
             vec![&combat.knight.exhaustion, &combat.barbarian.exhaustion],
             vec![&combat.knight.locations, &combat.barbarian.locations]
         );
-
-        // print_round_status(
-        //     &combat.knight.character,
-        //     &combat.barbarian.character,
-        //     &combat.knight.exhaustion,
-        //     &combat.barbarian.exhaustion,
-        //     &combat.knight.locations,
-        //     &combat.barbarian.locations,
-        // );
     }
 
     // Final summary

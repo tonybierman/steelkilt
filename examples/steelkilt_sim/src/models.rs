@@ -92,13 +92,13 @@ impl CombatantModel {
 }
 
 /// Manages the overall combat simulation state
-pub struct CombatModel {
+pub struct MeleeModel {
     pub combatant1: CombatantModel,
     pub combatant2: CombatantModel,
     pub round: usize,
 }
 
-impl CombatModel {
+impl MeleeModel {
     /// Create new combat state with two fighters
     pub fn new(c1: CombatantModel, c2: CombatantModel) -> Self {
         Self {

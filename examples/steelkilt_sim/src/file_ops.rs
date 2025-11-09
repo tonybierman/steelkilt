@@ -3,7 +3,7 @@ use std::path::Path;
 use steelkilt::Character;
 
 /// Scans the combatants directory and returns a list of available combatant names.
-pub fn load_available_combatants() -> Vec<String> {
+pub fn load_available_characters() -> Vec<String> {
     let combatants_dir = "../combatants";
     let mut combatants = Vec::new();
 

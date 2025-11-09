@@ -23,7 +23,7 @@ pub fn run_combat_rounds(character1: Character, character2: Character) {
     print_section_divider("COMBAT BEGINS!");
 
     // Initialize combat state manager
-    let mut combat = CombatModel::new(combatant1, combatant2);
+    let mut combat = MeleeModel::new(combatant1, combatant2);
 
     fn select_maneuver() -> InquireResult<CombatManeuver> {
         let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
@@ -36,7 +36,7 @@ pub fn run_combat_rounds(character1: Character, character2: Character) {
     while combat.combat_continues() && combat.round < 10 {
         combat.next_round();
 
-        println!("\n--- ROUND {} ---", combat.round);
+        println!("\n--- BEGIN ROUND {} ---", combat.round);
 
         // Get the maneuver choice
         let chosen_maneuver: CombatManeuver = match select_maneuver() {
@@ -82,22 +82,15 @@ pub fn run_combat_rounds(character1: Character, character2: Character) {
         combat.end_round();
 
         // Display round status
-        println!("\n--- END OF ROUND {} STATUS SUMMARY---", combat.round);
+        println!("\n--- END OF ROUND {} ---", combat.round);
         print_round_status(vec![&combat.combatant1, &combat.combatant2]);
     }
 
     // Final summary
     print_section_divider("COMBAT CONCLUDED");
 
-    print_final_status(
-        &combat.combatant1.character,
-        &combat.combatant1.exhaustion,
-        &combat.combatant1.locations,
-    );
+    print_final_status(&combat.combatant1);
+    println!("\n");
+    print_final_status(&combat.combatant2);
 
-    print_final_status(
-        &combat.combatant2.character,
-        &combat.combatant2.exhaustion,
-        &combat.combatant2.locations,
-    );
 }

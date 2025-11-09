@@ -82,14 +82,12 @@ pub fn print_round_status(combatants: Vec<&CombatantModel>){
 
 /// Print final post-combat status with detailed wound and location information
 pub fn print_final_status(
-    character: &Character,
-    exhaustion: &Exhaustion,
-    locations: &[LocationalDamage],
+    combatant: &CombatantModel,
 ) {
     println!(
         "{}: {}",
-        character.name,
-        if character.is_alive() {
+        combatant.character.name,
+        if combatant.is_alive() {
             "ALIVE"
         } else {
             "DEAD"
@@ -97,17 +95,17 @@ pub fn print_final_status(
     );
     println!(
         "  Total Wounds: {} Light, {} Severe, {} Critical",
-        character.wounds.light, character.wounds.severe, character.wounds.critical,
+        combatant.character.wounds.light, combatant.character.wounds.severe, combatant.character.wounds.critical,
     );
     println!(
         "  Exhaustion: {} points ({})",
-        exhaustion.points,
-        exhaustion.status()
+        combatant.exhaustion.points,
+        combatant.exhaustion.status()
     );
 
-    if !locations.is_empty() {
+    if !combatant.locations.is_empty() {
         println!("  Injured Locations:");
-        for loc in locations {
+        for loc in &combatant.locations {
             println!(
                 "    {}: L:{} S:{} C:{}, penalty: {}, disabled: {}",
                 loc.location,

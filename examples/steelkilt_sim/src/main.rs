@@ -72,7 +72,7 @@ fn main() {
 
 fn show_combatants() {
 
-    let options= load_available_combatants();
+    let options= load_available_characters();
 
     let ans: Result<String, InquireError> = Select::new("Select a fighter:", options).prompt();
 

@@ -42,6 +42,7 @@ pub fn save_character_to_file(
 }
 
 /// Deletes a character file from the combatants directory.
+#[allow(dead_code)]
 pub fn delete_character_file(filename: &str) -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new("../combatants").join(format!("{}.json", filename));
     fs::remove_file(path)?;

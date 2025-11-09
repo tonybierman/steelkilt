@@ -20,7 +20,6 @@ mod file_ops;
 use clap::{Parser, Subcommand};
 use engine::*;
 
-use steelkilt::modules::*;
 use inquire::Select;
 use inquire::error::*;
 use file_ops::*;
@@ -44,8 +43,7 @@ enum Commands {
         is_true: bool
     },
     Go,
-    Usage,
-    List
+    Usage
 }
 
 fn main() {
@@ -64,8 +62,7 @@ fn main() {
                     // Commands::Get(value) => get_something(value),
                     // Commands::Set{key, value, is_true} => set_something(key, value, is_true),
                     Commands::Usage => show_commands(),
-                    Commands::List => show_combatants(),
-                    Commands::Go => run_combat_rounds(args),
+                    Commands::Go => show_combatants(),
                     _ => show_commands()
                 }
             }
@@ -81,9 +78,26 @@ fn show_combatants() {
     let ans: Result<String, InquireError> = Select::new("Select a fighter:", options).prompt();
 
     match ans {
-        Ok(choice) => println!("{}! That's mine too!", choice),
+        Ok(pc_slug) => {
+            let pc_choice = load_character_from_file(&pc_slug);
+            match pc_choice {
+                Ok(pc_fighter) => {
+                    println!("{} enters the arena!", pc_fighter.name);
+                    let ai_choice = load_character_from_file("grimwald_ironfist");
+                    match ai_choice {
+                        Ok(ai_fighter) => {
+                            println!("{} enters the arena!", ai_fighter.name);
+                            run_combat_rounds(pc_fighter, ai_fighter);
+                        }
+                        Err(_) => println!("There was an error, please try again"),
+                    }
+                }
+                Err(_) => println!("There was an error, please try again"),
+            }
+        }
         Err(_) => println!("There was an error, please try again"),
     }
+
 }
 
 fn show_commands() {

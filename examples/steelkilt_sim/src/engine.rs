@@ -2,15 +2,16 @@ use crate::models::*;
 use crate::ui::*;
 use crate::combat::*;
 use crate::fighters::*;
+use steelkilt::Character;
 use steelkilt::modules::*;
 use inquire::error::InquireResult;
 
-pub fn run_combat_rounds(args: Vec<String>) {
+pub fn run_combat_rounds(pc: Character, ai: Character) {
     print_combat_header();
 
     // Initialize fighters with their skills and combat state
-    let knight_state = FighterModel::new(create_knight(), create_knight_skills());
-    let barbarian_state = FighterModel::new(create_barbarian(), create_barbarian_skills());
+    let knight_state = FighterModel::new(pc, create_knight_skills());
+    let barbarian_state = FighterModel::new(ai, create_barbarian_skills());
 
     // TODO: Make a menu option to show these
     // print_section_divider("COMBATANTS' DETAILS");

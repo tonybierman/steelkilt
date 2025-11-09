@@ -10,84 +10,79 @@ use steelkilt::modules::*;
 use steelkilt::*;
 
 pub fn print_fighters(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhaustions: Vec<&Exhaustion>) {
+    // Validate that all vectors have the same length
+    assert_eq!(characters.len(), skills.len(), 
+               "Characters and skills must have the same length");
+    assert_eq!(characters.len(), exhaustions.len(), 
+               "Characters and exhaustions must have the same length");
+    
     println!("== 1. Attributes");
     let mut table = Table::new();
-    table
-        .set_header(vec!["Name", "STR", "DEX", "CON", "STA", "Exhaustion"])
-        .add_row(vec![
-            &characters[0].name,
-            &characters[0].attributes.strength.to_string(),
-            &characters[0].attributes.dexterity.to_string(),
-            &characters[0].attributes.constitution.to_string(),
-            &characters[0].attributes.stamina().to_string(),
-            &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
-
-        ])
-        .add_row(vec![
-            &characters[1].name,
-            &characters[1].attributes.strength.to_string(),
-            &characters[1].attributes.dexterity.to_string(),
-            &characters[1].attributes.constitution.to_string(),
-            &characters[1].attributes.stamina().to_string(),
-            &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
+    table.set_header(vec!["Name", "STR", "DEX", "CON", "STA", "Exhaustion"]);
+    
+    for i in 0..characters.len() {
+        table.add_row(vec![
+            &characters[i].name,
+            &characters[i].attributes.strength.to_string(),
+            &characters[i].attributes.dexterity.to_string(),
+            &characters[i].attributes.constitution.to_string(),
+            &characters[i].attributes.stamina().to_string(),
+            &format!("{} ({})", exhaustions[i].points.to_string(), exhaustions[i].status().to_string()),
         ]);
+    }
     println!("{table}\n");
     
     println!("== 2. Equipment");
     let mut table2 = Table::new();
-    table2
-        .set_header(vec!["Name", "Weapon", "Armor"])
-        .add_row(vec![
-            &characters[0].name,
-            &format!("{} ({})", characters[0].weapon.name, characters[0].weapon.damage.to_string()),
-            &format!("{} ({})", characters[0].armor.name, characters[0].armor.protection.to_string()),
-        ])
-        .add_row(vec![
-            &characters[1].name,
-            &format!("{} ({})", characters[1].weapon.name, characters[1].weapon.damage.to_string()),
-            &format!("{} ({})", characters[1].armor.name, characters[1].armor.protection.to_string()),
+    table2.set_header(vec!["Name", "Weapon", "Armor"]);
+    
+    for i in 0..characters.len() {
+        table2.add_row(vec![
+            &characters[i].name,
+            &format!("{} ({})", characters[i].weapon.name, characters[i].weapon.damage.to_string()),
+            &format!("{} ({})", characters[i].armor.name, characters[i].armor.protection.to_string()),
         ]);
+    }
     println!("{table2}\n");
     
     println!("== 3. Skills");
     let mut table3 = Table::new();
-    table3
-        .set_header(vec!["Name", "Skills"])
-        .add_row(vec![
-            &characters[0].name,
-            &skills[0].skills.iter().map(|(name, skill)| format!("{}: {}", name, skill.level)).collect::<Vec<_>>().join(", ")
-        ])
-        .add_row(vec![
-            &characters[1].name,
-            &skills[1].skills.iter().map(|(name, skill)| format!("{}: {}", name, skill.level)).collect::<Vec<_>>().join(", ")
+    table3.set_header(vec!["Name", "Skills"]);
+    
+    for i in 0..characters.len() {
+        table3.add_row(vec![
+            &characters[i].name,
+            &skills[i].skills.iter().map(|(name, skill)| format!("{}: {}", name, skill.level)).collect::<Vec<_>>().join(", ")
         ]);
+    }
     println!("{table3}");
-
 }
 
 /// Print round-by-round status summary
 pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
+    // Validate that all vectors have the same length
+    assert_eq!(characters.len(), exhaustions.len(), 
+               "Characters and exhaustions must have the same length");
+    assert_eq!(characters.len(), locations.len(), 
+               "Characters and locations must have the same length");
+    
     let mut table = Table::new();
-    table
-        .set_header(vec!["Name", "Light", "Severe", "Critical", "Exhaustion", "Disabled"])
-        .add_row(vec![
-            &characters[0].name,
-            &characters[0].wounds.light.to_string(),
-            &characters[0].wounds.severe.to_string(),
-            &characters[0].wounds.critical.to_string(),
-            &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
-            &locations[0].iter().filter(|l| l.disabled).count().to_string()
-        ])
-        .add_row(vec![
-            &characters[1].name,
-            &characters[1].wounds.light.to_string(),
-            &characters[1].wounds.severe.to_string(),
-            &characters[1].wounds.critical.to_string(),
-            &format!("{} ({})", exhaustions[0].points.to_string(), exhaustions[0].status().to_string()),
-            &locations[1].iter().filter(|l| l.disabled).count().to_string()
+    table.set_header(vec!["Name", "Light", "Severe", "Critical", "Exhaustion", "Disabled"]);
+    
+    for i in 0..characters.len() {
+        table.add_row(vec![
+            &characters[i].name,
+            &characters[i].wounds.light.to_string(),
+            &characters[i].wounds.severe.to_string(),
+            &characters[i].wounds.critical.to_string(),
+            &format!("{} ({})", exhaustions[i].points.to_string(), exhaustions[i].status().to_string()),
+            &locations[i].iter().filter(|l| l.disabled).count().to_string()
         ]);
+    }
+    
     println!("{table}\n");
 }
+
 
 /// Print final post-combat status with detailed wound and location information
 pub fn print_final_status(

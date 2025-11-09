@@ -1,0 +1,69 @@
+{
+  "name": "Mira Starweaver",
+  "attributes": {
+    "strength": 4,
+    "dexterity": 6,
+    "constitution": 5,
+    "reason": 8,
+    "intuition": 9,
+    "willpower": 7,
+    "charisma": 6,
+    "perception": 7,
+    "empathy": 9
+  },
+  "weapon_skill": 3,
+  "dodge_skill": 5,
+  "weapon": {
+    "name": "Dagger",
+    "impact": "Small",
+    "damage": 3
+  },
+  "armor": {
+    "name": "Heavy Cloth Robe",
+    "armor_type": "HeavyCloth",
+    "protection": 1,
+    "movement_penalty": 0
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  },
+  "magic": {
+    "empathy": 9,
+    "exhaustion_points": 0,
+    "lores": {
+      "Divination": {
+        "branch": "Divination",
+        "level": 5,
+        "empathy_attribute": 9
+      }
+    },
+    "spells": {
+      "Detect Magic": {
+        "spell": {
+          "name": "Detect Magic",
+          "branch": "Divination",
+          "difficulty": "Easy",
+          "preparation_time": 5,
+          "casting_time": 1,
+          "range": {"Short": 10},
+          "duration": {"Minutes": 10}
+        },
+        "skill_level": 4
+      },
+      "True Seeing": {
+        "spell": {
+          "name": "True Seeing",
+          "branch": "Divination",
+          "difficulty": "Hard",
+          "preparation_time": 30,
+          "casting_time": 2,
+          "range": "Personal",
+          "duration": {"Hours": 1}
+        },
+        "skill_level": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Brother Aldwyn",
+  "attributes": {
+    "strength": 5,
+    "dexterity": 5,
+    "constitution": 6,
+    "reason": 7,
+    "intuition": 8,
+    "willpower": 9,
+    "charisma": 7,
+    "perception": 6,
+    "empathy": 8
+  },
+  "weapon_skill": 4,
+  "dodge_skill": 4,
+  "weapon": {
+    "name": "Staff",
+    "impact": "Medium",
+    "damage": 5
+  },
+  "armor": {
+    "name": "Heavy Cloth Robe",
+    "armor_type": "HeavyCloth",
+    "protection": 1,
+    "movement_penalty": 0
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

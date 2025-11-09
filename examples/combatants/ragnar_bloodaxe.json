@@ -1,0 +1,32 @@
+{
+  "name": "Ragnar Bloodaxe",
+  "attributes": {
+    "strength": 10,
+    "dexterity": 6,
+    "constitution": 9,
+    "reason": 3,
+    "intuition": 4,
+    "willpower": 8,
+    "charisma": 5,
+    "perception": 5,
+    "empathy": 2
+  },
+  "weapon_skill": 8,
+  "dodge_skill": 4,
+  "weapon": {
+    "name": "Great Axe",
+    "impact": "Huge",
+    "damage": 9
+  },
+  "armor": {
+    "name": "Chain Mail",
+    "armor_type": "Chain",
+    "protection": 3,
+    "movement_penalty": -1
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

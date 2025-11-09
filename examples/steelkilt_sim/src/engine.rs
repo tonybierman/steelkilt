@@ -1,4 +1,4 @@
-use crate::state::*;
+use crate::models::*;
 use crate::ui::*;
 use crate::combat::*;
 use crate::fighters::*;
@@ -9,8 +9,8 @@ pub fn run_combat_rounds(args: Vec<String>) {
     print_combat_header();
 
     // Initialize fighters with their skills and combat state
-    let knight_state = FighterState::new(create_knight(), create_knight_skills());
-    let barbarian_state = FighterState::new(create_barbarian(), create_barbarian_skills());
+    let knight_state = FighterModel::new(create_knight(), create_knight_skills());
+    let barbarian_state = FighterModel::new(create_barbarian(), create_barbarian_skills());
 
     // TODO: Make a menu option to show these
     // print_section_divider("COMBATANTS' DETAILS");
@@ -23,7 +23,7 @@ pub fn run_combat_rounds(args: Vec<String>) {
     print_section_divider("COMBAT BEGINS!");
 
     // Initialize combat state manager
-    let mut combat = CombatState::new(knight_state, barbarian_state);
+    let mut combat = CombatModel::new(knight_state, barbarian_state);
 
     fn select_maneuver() -> InquireResult<CombatManeuver> {
         let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")

@@ -1,0 +1,32 @@
+{
+  "name": "Thora Shieldmaiden",
+  "attributes": {
+    "strength": 7,
+    "dexterity": 5,
+    "constitution": 9,
+    "reason": 5,
+    "intuition": 4,
+    "willpower": 7,
+    "charisma": 6,
+    "perception": 5,
+    "empathy": 4
+  },
+  "weapon_skill": 8,
+  "dodge_skill": 3,
+  "weapon": {
+    "name": "Long Sword",
+    "impact": "Medium",
+    "damage": 5
+  },
+  "armor": {
+    "name": "Plate Armor",
+    "armor_type": "Plate",
+    "protection": 4,
+    "movement_penalty": -1
+  },
+  "wounds": {
+    "light": 0,
+    "severe": 0,
+    "critical": 0
+  }
+}

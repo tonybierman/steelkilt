@@ -8,8 +8,9 @@
 use comfy_table::Table;
 use steelkilt::modules::*;
 use steelkilt::*;
+use crate::models::*;
 
-pub fn print_fighters(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhaustions: Vec<&Exhaustion>) {
+pub fn print_combatants(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhaustions: Vec<&Exhaustion>) {
     // Validate that all vectors have the same length
     assert_eq!(characters.len(), skills.len(), 
                "Characters and skills must have the same length");
@@ -59,24 +60,19 @@ pub fn print_fighters(characters: Vec<&Character>, skills: Vec<&SkillSet>, exhau
 }
 
 /// Print round-by-round status summary
-pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
-    // Validate that all vectors have the same length
-    assert_eq!(characters.len(), exhaustions.len(), 
-               "Characters and exhaustions must have the same length");
-    assert_eq!(characters.len(), locations.len(), 
-               "Characters and locations must have the same length");
-    
+// pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
+pub fn print_round_status(combatants: Vec<&CombatantModel>){
     let mut table = Table::new();
     table.set_header(vec!["Name", "Light", "Severe", "Critical", "Exhaustion", "Disabled"]);
     
-    for i in 0..characters.len() {
+    for i in 0..combatants.len() {
         table.add_row(vec![
-            &characters[i].name,
-            &characters[i].wounds.light.to_string(),
-            &characters[i].wounds.severe.to_string(),
-            &characters[i].wounds.critical.to_string(),
-            &format!("{} ({})", exhaustions[i].points.to_string(), exhaustions[i].status().to_string()),
-            &locations[i].iter().filter(|l| l.disabled).count().to_string()
+            &combatants[i].character.name,
+            &combatants[i].character.wounds.light.to_string(),
+            &combatants[i].character.wounds.severe.to_string(),
+            &combatants[i].character.wounds.critical.to_string(),
+            &format!("{} ({})", &combatants[i].exhaustion.points.to_string(), &combatants[i].exhaustion.status().to_string()),
+            &combatants[i].locations.iter().filter(|l| l.disabled).count().to_string()
         ]);
     }
     

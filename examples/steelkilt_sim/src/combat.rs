@@ -6,7 +6,7 @@
 //! - Damage calculation with stance and location multipliers
 //! - Wound application and tracking
 
-use crate::models::FighterModel;
+use crate::models::CombatantModel;
 use steelkilt::modules::*;
 use steelkilt::*;
 
@@ -22,7 +22,7 @@ pub fn determine_hit_location(round: usize) -> HitLocation {
 }
 
 /// Execute an advanced attack with all modifiers and systems
-pub fn perform_attack(attacker: &mut FighterModel, defender: &mut FighterModel, round: usize) {
+pub fn perform_attack(attacker: &mut CombatantModel, defender: &mut CombatantModel, round: usize) {
     let total_attack_mod = attacker.total_attack_modifier();
     let hit_location = determine_hit_location(round);
 
@@ -54,8 +54,8 @@ pub fn perform_attack(attacker: &mut FighterModel, defender: &mut FighterModel, 
 
 /// Apply damage from a successful hit, including stance and location modifiers
 fn apply_hit_damage(
-    attacker: &FighterModel,
-    defender: &mut FighterModel,
+    attacker: &CombatantModel,
+    defender: &mut CombatantModel,
     result: &CombatResult,
     hit_location: HitLocation,
 ) {
@@ -78,7 +78,7 @@ fn apply_hit_damage(
 }
 
 /// Apply a wound to a specific body location and check for disabling
-fn apply_locational_wound(defender: &mut FighterModel, wound: WoundLevel, location: HitLocation) {
+fn apply_locational_wound(defender: &mut CombatantModel, wound: WoundLevel, location: HitLocation) {
     let severity = match wound {
         WoundLevel::Light => hit_location::WoundSeverity::Light,
         WoundLevel::Severe => hit_location::WoundSeverity::Severe,

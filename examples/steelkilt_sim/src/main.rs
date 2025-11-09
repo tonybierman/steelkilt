@@ -11,7 +11,6 @@
 //! feedback on combat resolution, wound effects, and character status.
 
 mod combat;
-mod fighters;
 mod models;
 mod ui;
 mod engine;
@@ -81,13 +80,13 @@ fn show_combatants() {
         Ok(pc_slug) => {
             let pc_choice = load_character_from_file(&pc_slug);
             match pc_choice {
-                Ok(pc_fighter) => {
-                    println!("{} enters the arena!", pc_fighter.name);
+                Ok(pc_character) => {
+                    println!("{} enters the arena!", pc_character.name);
                     let ai_choice = load_character_from_file("grimwald_ironfist");
                     match ai_choice {
-                        Ok(ai_fighter) => {
-                            println!("{} enters the arena!", ai_fighter.name);
-                            run_combat_rounds(pc_fighter, ai_fighter);
+                        Ok(ai_character) => {
+                            println!("{} enters the arena!", ai_character.name);
+                            run_combat_rounds(pc_character, ai_character);
                         }
                         Err(_) => println!("There was an error, please try again"),
                     }

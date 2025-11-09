@@ -9,22 +9,20 @@ use steelkilt::modules::*;
 use steelkilt::*;
 
 /// Encapsulates all combat state for a single fighter
-pub struct FighterModel {
+pub struct CombatantModel {
     pub character: Character,
-    pub skills: SkillSet,
     pub stance: CombatStance,
     pub exhaustion: Exhaustion,
     pub locations: Vec<LocationalDamage>,
 }
 
-impl FighterModel {
+impl CombatantModel {
     /// Create a new fighter state from character and skills
-    pub fn new(character: Character, skills: SkillSet) -> Self {
+    pub fn new(character: Character) -> Self {
         let stamina = character.attributes.stamina();
 
         Self {
             character,
-            skills,
             stance: CombatStance::new(),
             exhaustion: Exhaustion::new(stamina),
             locations: Vec::new(),
@@ -95,24 +93,24 @@ impl FighterModel {
 
 /// Manages the overall combat simulation state
 pub struct CombatModel {
-    pub knight: FighterModel,
-    pub barbarian: FighterModel,
+    pub combatant1: CombatantModel,
+    pub combatant2: CombatantModel,
     pub round: usize,
 }
 
 impl CombatModel {
     /// Create new combat state with two fighters
-    pub fn new(knight: FighterModel, barbarian: FighterModel) -> Self {
+    pub fn new(c1: CombatantModel, c2: CombatantModel) -> Self {
         Self {
-            knight,
-            barbarian,
+            combatant1: c1,
+            combatant2: c2,
             round: 0,
         }
     }
 
     /// Check if combat should continue
     pub fn combat_continues(&self) -> bool {
-        self.knight.can_act() && self.barbarian.can_act()
+        self.combatant1.can_act() && self.combatant2.can_act()
     }
 
     /// Increment round counter and apply per-round effects
@@ -120,13 +118,13 @@ impl CombatModel {
         self.round += 1;
 
         // Add exhaustion each round
-        self.knight.add_exhaustion(1);
-        self.barbarian.add_exhaustion(1);
+        self.combatant1.add_exhaustion(1);
+        self.combatant2.add_exhaustion(1);
     }
 
     /// Reset round-specific flags for both fighters
     pub fn end_round(&mut self) {
-        self.knight.end_round();
-        self.barbarian.end_round();
+        self.combatant1.end_round();
+        self.combatant2.end_round();
     }
 }

@@ -1,17 +1,16 @@
 use crate::models::*;
 use crate::ui::*;
 use crate::combat::*;
-use crate::fighters::*;
 use steelkilt::Character;
 use steelkilt::modules::*;
 use inquire::error::InquireResult;
 
-pub fn run_combat_rounds(pc: Character, ai: Character) {
+pub fn run_combat_rounds(character1: Character, character2: Character) {
     print_combat_header();
 
     // Initialize fighters with their skills and combat state
-    let knight_state = FighterModel::new(pc, create_knight_skills());
-    let barbarian_state = FighterModel::new(ai, create_barbarian_skills());
+    let combatant1 = CombatantModel::new(character1);
+    let combatant2 = CombatantModel::new(character2);
 
     // TODO: Make a menu option to show these
     // print_section_divider("COMBATANTS' DETAILS");
@@ -24,7 +23,7 @@ pub fn run_combat_rounds(pc: Character, ai: Character) {
     print_section_divider("COMBAT BEGINS!");
 
     // Initialize combat state manager
-    let mut combat = CombatModel::new(knight_state, barbarian_state);
+    let mut combat = CombatModel::new(combatant1, combatant2);
 
     fn select_maneuver() -> InquireResult<CombatManeuver> {
         let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
@@ -49,32 +48,32 @@ pub fn run_combat_rounds(pc: Character, ai: Character) {
             };
         
         // Set the maneuver
-        if let Err(e) = combat.knight.set_maneuver(chosen_maneuver) {
+        if let Err(e) = combat.combatant1.set_maneuver(chosen_maneuver) {
             println!("Error setting maneuver: {}", e);
             continue;
         }
 
         // Knight's attack
-        if combat.knight.can_attack() {
-            perform_attack(&mut combat.knight, &mut combat.barbarian, combat.round);
+        if combat.combatant1.can_attack() {
+            perform_attack(&mut combat.combatant1, &mut combat.combatant2, combat.round);
 
-            if !combat.barbarian.is_alive() {
-                println!("\n{} has been slain!", combat.barbarian.character.name);
+            if !combat.combatant2.is_alive() {
+                println!("\n{} has been slain!", combat.combatant2.character.name);
                 break;
             }
         } else {
             println!(
                 "{} maintains defensive stance",
-                combat.knight.character.name
+                combat.combatant1.character.name
             );
         }
 
         // Barbarian's attack (AI-controlled for now)
-        if combat.barbarian.can_attack() {
-            perform_attack(&mut combat.barbarian, &mut combat.knight, combat.round);
+        if combat.combatant2.can_attack() {
+            perform_attack(&mut combat.combatant2, &mut combat.combatant1, combat.round);
 
-            if !combat.knight.is_alive() {
-                println!("\n{} has been slain!", combat.knight.character.name);
+            if !combat.combatant1.is_alive() {
+                println!("\n{} has been slain!", combat.combatant1.character.name);
                 break;
             }
         }
@@ -84,25 +83,21 @@ pub fn run_combat_rounds(pc: Character, ai: Character) {
 
         // Display round status
         println!("\n--- END OF ROUND {} STATUS SUMMARY---", combat.round);
-        print_round_status(
-            vec![&combat.knight.character, &combat.barbarian.character],
-            vec![&combat.knight.exhaustion, &combat.barbarian.exhaustion],
-            vec![&combat.knight.locations, &combat.barbarian.locations]
-        );
+        print_round_status(vec![&combat.combatant1, &combat.combatant2]);
     }
 
     // Final summary
     print_section_divider("COMBAT CONCLUDED");
 
     print_final_status(
-        &combat.knight.character,
-        &combat.knight.exhaustion,
-        &combat.knight.locations,
+        &combat.combatant1.character,
+        &combat.combatant1.exhaustion,
+        &combat.combatant1.locations,
     );
 
     print_final_status(
-        &combat.barbarian.character,
-        &combat.barbarian.exhaustion,
-        &combat.barbarian.locations,
+        &combat.combatant2.character,
+        &combat.combatant2.exhaustion,
+        &combat.combatant2.locations,
     );
 }

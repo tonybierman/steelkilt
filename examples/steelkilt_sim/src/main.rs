@@ -26,84 +26,48 @@ use file_ops::*;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[command(subcommand)]
-    cmd: Commands
+    #[arg(value_name = "VALUE", default_value = "default-slug")]
+    value: String,
+
+    #[arg(long)]
+    auto: bool,
 }
 
-#[derive(Subcommand, Debug, Clone)]
-enum Commands {
-    Get {
-        #[arg(value_name = "VALUE")]
-        value: String,
-    },
-    Set {
-        key: String,
-        value: String,
-        is_true: bool
-    },
-    Go,
-    Usage
+fn get_something(slug: &str) -> Result<String, InquireError> {
+    let options = load_available_characters();
+    Select::new("Select a combatant:", options).prompt()
+}
+
+fn set_something(key: String, value: String, flag: bool) {
+
 }
 
 fn main() {
-    loop {
-        let mut buf = format!("{} ", env!("CARGO_PKG_NAME"));
+    let args = Args::parse();
 
-        std::io::stdin().read_line(&mut buf).expect("Couldn't parse stdin");
-        let line = buf.trim();
-        let args = shlex::split(line).ok_or("error: Invalid quoting").unwrap();
-
-        println!("{:?}", args);
-
-        match Args::try_parse_from(args.iter()).map_err(|e| e.to_string()) {
-            Ok(cli) => {
-                match cli.cmd {
-                    // Commands::Get(value) => get_something(value),
-                    // Commands::Set{key, value, is_true} => set_something(key, value, is_true),
-                    Commands::Usage => show_commands(),
-                    Commands::Go => show_combatants(),
-                    _ => show_commands()
-                }
-            }
-            Err(_) => println!("That's not a valid command - use the help command if you are stuck.")
-         };
+    match get_something(&args.value) {
+        Ok(selection) => {
+            run_combat(selection, args.auto);
+        }
+        Err(e) => eprintln!("Error: {}", e),
     }
 }
-
-fn show_combatants() {
-
-    let options= load_available_characters();
-
-    let ans: Result<String, InquireError> = Select::new("Select a fighter:", options).prompt();
-
-    match ans {
-        Ok(pc_slug) => {
-            let pc_choice = load_character_from_file(&pc_slug);
-            match pc_choice {
-                Ok(pc_character) => {
-                    println!("{} enters the arena!", pc_character.name);
-                    let ai_choice = load_character_from_file("grimwald_ironfist");
-                    match ai_choice {
-                        Ok(ai_character) => {
-                            println!("{} enters the arena!", ai_character.name);
-                            run_combat_rounds(pc_character, ai_character);
-                        }
-                        Err(_) => println!("There was an error, please try again"),
-                    }
+    
+fn run_combat(pc_slug: String, auto: bool) {
+    let pc_choice = load_character_from_file(&pc_slug);
+    match pc_choice {
+        Ok(pc_character) => {
+            println!("{} enters the arena!", pc_character.name);
+            let ai_choice = load_character_from_file("grimwald_ironfist");
+            match ai_choice {
+                Ok(ai_character) => {
+                    println!("{} enters the arena!", ai_character.name);
+                    run_combat_rounds(pc_character, ai_character);
                 }
                 Err(_) => println!("There was an error, please try again"),
             }
         }
         Err(_) => println!("There was an error, please try again"),
     }
-
-}
-
-fn show_commands() {
-    println!(r#"COMMANDS:
-get <KEY> - Gets the value of a given key and displays it. If no key given, retrieves all values and displays them.
-set <KEY> <VALUE> - Sets the value of a given key.
-    Flags: --is-true
-"#);
 }
 

@@ -109,7 +109,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 /// Loads characters and initiates combat
-fn run_combat(pc_slug: &str, ai_slug: &str, auto: bool) -> Result<(), Box<dyn Error>> {
+fn run_combat(pc_slug: &str, ai_slug: &str, is_auto: bool) -> Result<(), Box<dyn Error>> {
     // Load first character
     let pc_character = load_character_from_file(pc_slug)
         .map_err(|e| format!("Failed to load character '{}': {}", pc_slug, e))?;
@@ -123,7 +123,7 @@ fn run_combat(pc_slug: &str, ai_slug: &str, auto: bool) -> Result<(), Box<dyn Er
     println!("{} enters the arena!", ai_character.name);
     
     // Start combat
-    run_combat_rounds(pc_character, ai_character);
+    run_combat_rounds(pc_character, ai_character, is_auto);
     
     Ok(())
 }

@@ -5,32 +5,25 @@ use steelkilt::Character;
 use steelkilt::modules::*;
 use inquire::error::InquireResult;
 
-pub fn run_combat_rounds(character1: Character, character2: Character) {
+
+fn select_maneuver() -> InquireResult<CombatManeuver> {
+    let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
+        .prompt()?;
+    println!("Selected: {}", chosen_maneuver);
+    Ok(chosen_maneuver)
+}
+
+pub fn run_combat_rounds(character1: Character, character2: Character, is_auto: bool) {
     print_combat_header();
 
     // Initialize fighters with their skills and combat state
     let combatant1 = CombatantModel::new(character1);
     let combatant2 = CombatantModel::new(character2);
 
-    // TODO: Make a menu option to show these
-    // print_section_divider("COMBATANTS' DETAILS");
-    // print_fighters(
-    //     vec![&knight_state.character, &barbarian_state.character],
-    //     vec![&knight_state.skills, &barbarian_state.skills],
-    //     vec![&knight_state.exhaustion, &barbarian_state.exhaustion]
-    // );
-
     print_section_divider("COMBAT BEGINS!");
 
     // Initialize combat state manager
     let mut combat = MeleeModel::new(combatant1, combatant2);
-
-    fn select_maneuver() -> InquireResult<CombatManeuver> {
-        let chosen_maneuver: CombatManeuver = CombatManeuver::select("Choose a maneuver:")
-            .prompt()?;
-        println!("Selected: {}", chosen_maneuver);
-        Ok(chosen_maneuver)
-    }
 
     // Main combat loop
     while combat.combat_continues() && combat.round < 10 {
@@ -38,14 +31,18 @@ pub fn run_combat_rounds(character1: Character, character2: Character) {
 
         println!("\n--- BEGIN ROUND {} ---", combat.round);
 
-        // Get the maneuver choice
-        let chosen_maneuver: CombatManeuver = match select_maneuver() {
+        let mut chosen_maneuver = CombatManeuver::Normal;
+
+        if !is_auto {
+            // Get the maneuver choice
+            chosen_maneuver = match select_maneuver() {
                 Ok(maneuver) => maneuver,
                 Err(e) => {
                     println!("Error selecting maneuver: {}", e);
                     continue;
                 }
             };
+        }
         
         // Set the maneuver
         if let Err(e) = combat.combatant1.set_maneuver(chosen_maneuver) {
@@ -87,8 +84,7 @@ pub fn run_combat_rounds(character1: Character, character2: Character) {
     }
 
     // Final summary
-    print_section_divider("COMBAT CONCLUDED");
-
+    print_section_divider("END OF COMBAT");
     print_final_status(&combat.combatant1);
     println!("\n");
     print_final_status(&combat.combatant2);

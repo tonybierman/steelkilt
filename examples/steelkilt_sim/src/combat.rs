@@ -10,7 +10,7 @@
 //! This module serves as the orchestration layer between the game's combat models
 //! and the core steelkilt combat library, handling application-specific logic like
 //! stance modifiers, exhaustion, and locational damage tracking.
-
+use text_colorizer::*;
 use crate::models::CombatantModel;
 use steelkilt::modules::*;
 use steelkilt::*;
@@ -245,10 +245,10 @@ fn convert_wound_level_to_severity(wound: WoundLevel) -> hit_location::WoundSeve
 
 /// Handle effects when a body location becomes disabled
 fn handle_location_disabled(defender: &mut CombatantModel, location: HitLocation) {
-    println!("  → {} is DISABLED!", location);
+    println!("  → {} is {}", location.to_string().red(), "DISABLED!".red());
 
     if location.causes_weapon_drop() {
-        println!("  → {} drops their weapon!", defender.character.name);
+        println!("  → {} {} their weapon!", defender.character.name, "drops".red());
     }
 }
 
@@ -268,7 +268,7 @@ fn log_damage_absorbed() {
 }
 
 fn log_wound_inflicted(wound_level: WoundLevel) {
-    println!("  → {} wound inflicted", wound_level);
+    println!("  → {} wound inflicted", wound_level.to_string().red());
 }
 
 // ============================================================================

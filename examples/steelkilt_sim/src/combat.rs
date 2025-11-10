@@ -5,152 +5,377 @@
 //! - Hit location determination
 //! - Damage calculation with stance and location multipliers
 //! - Wound application and tracking
+//!
+//! # Design Notes
+//! This module serves as the orchestration layer between the game's combat models
+//! and the core steelkilt combat library, handling application-specific logic like
+//! stance modifiers, exhaustion, and locational damage tracking.
 
 use crate::models::CombatantModel;
 use steelkilt::modules::*;
 use steelkilt::*;
 
-/// Determine hit location based on round number (simple rotation for demo)
-pub fn determine_hit_location(round: usize) -> HitLocation {
-    let direction = match round % 3 {
-        0 => AttackDirection::Above,
-        1 => AttackDirection::Left,
-        _ => AttackDirection::Front,
-    };
+// ============================================================================
+// Constants
+// ============================================================================
 
+/// Number of attack directions in the rotation cycle
+const ATTACK_DIRECTION_CYCLE: usize = 3;
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/// Determine hit location based on round number using a rotating attack pattern.
+///
+/// Uses a simple 3-direction rotation (Above → Left → Front) to provide variety
+/// in combat while maintaining predictability for testing.
+///
+/// # Arguments
+/// * `round` - The current combat round number (0-indexed)
+///
+/// # Returns
+/// A randomly selected `HitLocation` appropriate for the attack direction
+///
+/// # Examples
+/// ```
+/// let location = determine_hit_location(0); // Above attack
+/// let location = determine_hit_location(1); // Left attack
+/// let location = determine_hit_location(2); // Front attack
+/// let location = determine_hit_location(3); // Above attack (cycle repeats)
+/// ```
+pub fn determine_hit_location(round: usize) -> HitLocation {
+    let direction = attack_direction_for_round(round);
     HitLocation::determine(direction)
 }
 
-/// Execute an advanced attack with all modifiers and systems
-pub fn perform_attack(attacker: &mut CombatantModel, defender: &mut CombatantModel, round: usize) {
-    let total_attack_mod = attacker.total_attack_modifier();
-    let hit_location = determine_hit_location(round);
+/// Execute a complete attack sequence with all modifiers and systems applied.
+///
+/// This is the main entry point for combat actions, handling:
+/// - Attack roll with stance, exhaustion, and other modifiers
+/// - Defense roll processing
+/// - Hit location determination
+/// - Damage calculation and application
+/// - Wound tracking and location-specific effects
+///
+/// # Arguments
+/// * `attacker` - The combatant performing the attack
+/// * `defender` - The combatant being attacked
+/// * `round` - The current round number for hit location determination
+///
+/// # Side Effects
+/// - Modifies both attacker and defender state
+/// - Prints combat log messages to stdout
+pub fn perform_attack(
+    attacker: &mut CombatantModel,
+    defender: &mut CombatantModel,
+    round: usize,
+) {
+    let attack_context = AttackContext::new(attacker, defender, round);
+    attack_context.log_attack_start();
 
-    println!(
-        "\n{} attacks {} (Stance: {}, Exhaustion: {}, Total Mod: {:+})",
-        attacker.character.name,
-        defender.character.name,
-        attacker.stance.current_maneuver,
-        attacker.exhaustion.status(),
-        total_attack_mod
-    );
-
-    // Execute combat round using core library
-    let result = combat_round(
-        &mut attacker.character,
-        &mut defender.character,
-        DefenseAction::Parry,
-    );
+    let result = execute_attack_roll(attacker, defender);
 
     if result.hit {
-        apply_hit_damage(attacker, defender, &result, hit_location);
+        handle_successful_hit(attacker, defender, &result, attack_context.hit_location);
     } else {
+        log_missed_attack(&result);
+    }
+}
+
+// ============================================================================
+// Internal Helpers - Attack Execution
+// ============================================================================
+
+/// Context information for a single attack
+struct AttackContext {
+    hit_location: HitLocation,
+    attacker_name: String,
+    defender_name: String,
+    stance: String,
+    exhaustion_status: String,
+    total_modifier: i32,
+}
+
+impl AttackContext {
+    fn new(attacker: &CombatantModel, defender: &CombatantModel, round: usize) -> Self {
+        Self {
+            hit_location: determine_hit_location(round),
+            attacker_name: attacker.character.name.clone(),
+            defender_name: defender.character.name.clone(),
+            stance: attacker.stance.current_maneuver.to_string(),
+            exhaustion_status: attacker.exhaustion.status().to_string(),
+            total_modifier: attacker.total_attack_modifier(),
+        }
+    }
+
+    fn log_attack_start(&self) {
         println!(
-            "  → MISS (Attack: {} vs Defense: {})",
-            result.attack_roll, result.defense_roll
+            "\n{} attacks {} (Stance: {}, Exhaustion: {}, Total Mod: {:+})",
+            self.attacker_name,
+            self.defender_name,
+            self.stance,
+            self.exhaustion_status,
+            self.total_modifier
         );
     }
 }
 
-/// Apply damage from a successful hit, including stance and location modifiers
-fn apply_hit_damage(
+/// Execute the core attack roll using the steelkilt library
+fn execute_attack_roll(
+    attacker: &mut CombatantModel,
+    defender: &mut CombatantModel,
+) -> CombatResult {
+    combat_round(
+        &mut attacker.character,
+        &mut defender.character,
+        DefenseAction::Parry,
+    )
+}
+
+/// Map round number to attack direction in the rotation cycle
+#[inline]
+fn attack_direction_for_round(round: usize) -> AttackDirection {
+    match round % ATTACK_DIRECTION_CYCLE {
+        0 => AttackDirection::Above,
+        1 => AttackDirection::Left,
+        _ => AttackDirection::Front,
+    }
+}
+
+// ============================================================================
+// Internal Helpers - Hit Processing
+// ============================================================================
+
+/// Process a successful hit with damage calculation and wound application
+fn handle_successful_hit(
     attacker: &CombatantModel,
     defender: &mut CombatantModel,
     result: &CombatResult,
     hit_location: HitLocation,
 ) {
-    // Calculate adjusted damage with stance and location modifiers
-    let stance_damage_mod = attacker.stance_damage_modifier();
-    let location_damage_mult = hit_location.damage_multiplier();
-    let adjusted_damage = (result.damage as f32 * location_damage_mult) as i32 + stance_damage_mod;
+    let damage_calc = DamageCalculation::new(attacker, result, hit_location);
+    damage_calc.log_hit_details();
 
-    println!(
-        "  → HIT to {}! Base damage: {}, Location mult: {:.2}x, Stance bonus: {:+}, Final: {}",
-        hit_location, result.damage, location_damage_mult, stance_damage_mod, adjusted_damage
-    );
-
-    // Apply wound to location if one was inflicted
-    if let Some(wound) = result.wound_level {
-        apply_locational_wound(defender, wound, hit_location);
+    if let Some(wound_level) = result.wound_level {
+        apply_wound_with_effects(defender, wound_level, hit_location);
     } else {
-        println!("  → Damage absorbed (no wound)");
+        log_damage_absorbed();
     }
 }
 
-/// Apply a wound to a specific body location and check for disabling
-fn apply_locational_wound(defender: &mut CombatantModel, wound: WoundLevel, location: HitLocation) {
-    let severity = match wound {
-        WoundLevel::Light => hit_location::WoundSeverity::Light,
-        WoundLevel::Severe => hit_location::WoundSeverity::Severe,
-        WoundLevel::Critical => hit_location::WoundSeverity::Critical,
-    };
+/// Encapsulates damage calculation logic with all modifiers
+struct DamageCalculation {
+    base_damage: i32,
+    location_multiplier: f32,
+    stance_modifier: i32,
+    final_damage: i32,
+    location: HitLocation,
+}
 
-    let disabled = defender.add_location_wound(location, severity);
+impl DamageCalculation {
+    fn new(attacker: &CombatantModel, result: &CombatResult, location: HitLocation) -> Self {
+        let stance_modifier = attacker.stance_damage_modifier();
+        let location_multiplier = location.damage_multiplier();
+        let final_damage = Self::calculate_final_damage(
+            result.damage,
+            location_multiplier,
+            stance_modifier,
+        );
 
-    if disabled {
-        println!("  → {} is DISABLED!", location);
-
-        if location.causes_weapon_drop() {
-            println!("  → {} drops their weapon!", defender.character.name);
+        Self {
+            base_damage: result.damage,
+            location_multiplier,
+            stance_modifier,
+            final_damage,
+            location,
         }
     }
 
-    println!("  → {} wound inflicted", wound);
+    fn calculate_final_damage(
+        base_damage: i32,
+        location_multiplier: f32,
+        stance_modifier: i32,
+    ) -> i32 {
+        // Apply location multiplier first, then add stance modifier
+        (base_damage as f32 * location_multiplier) as i32 + stance_modifier
+    }
+
+    fn log_hit_details(&self) {
+        println!(
+            "  → HIT to {}! Base damage: {}, Location mult: {:.2}x, Stance bonus: {:+}, Final: {}",
+            self.location,
+            self.base_damage,
+            self.location_multiplier,
+            self.stance_modifier,
+            self.final_damage
+        );
+    }
 }
+
+// ============================================================================
+// Internal Helpers - Wound Application
+// ============================================================================
+
+/// Apply wound to location and handle any special effects (disabling, weapon drops, etc.)
+fn apply_wound_with_effects(
+    defender: &mut CombatantModel,
+    wound_level: WoundLevel,
+    location: HitLocation,
+) {
+    let severity = convert_wound_level_to_severity(wound_level);
+    let was_disabled = defender.add_location_wound(location, severity);
+
+    if was_disabled {
+        handle_location_disabled(defender, location);
+    }
+
+    log_wound_inflicted(wound_level);
+}
+
+/// Convert between wound level representations
+#[inline]
+fn convert_wound_level_to_severity(wound: WoundLevel) -> hit_location::WoundSeverity {
+    match wound {
+        WoundLevel::Light => hit_location::WoundSeverity::Light,
+        WoundLevel::Severe => hit_location::WoundSeverity::Severe,
+        WoundLevel::Critical => hit_location::WoundSeverity::Critical,
+    }
+}
+
+/// Handle effects when a body location becomes disabled
+fn handle_location_disabled(defender: &mut CombatantModel, location: HitLocation) {
+    println!("  → {} is DISABLED!", location);
+
+    if location.causes_weapon_drop() {
+        println!("  → {} drops their weapon!", defender.character.name);
+    }
+}
+
+// ============================================================================
+// Logging Helpers
+// ============================================================================
+
+fn log_missed_attack(result: &CombatResult) {
+    println!(
+        "  → MISS (Attack: {} vs Defense: {})",
+        result.attack_roll, result.defense_roll
+    );
+}
+
+fn log_damage_absorbed() {
+    println!("  → Damage absorbed (no wound)");
+}
+
+fn log_wound_inflicted(wound_level: WoundLevel) {
+    println!("  → {} wound inflicted", wound_level);
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_hit_location_rotation() {
-        // Test that hit locations rotate predictably based on round number
-        // We can't test the exact location due to randomness in HitLocation::determine,
-        // but we can verify the pattern repeats
+    fn test_attack_direction_cycle() {
+        // Verify attack directions cycle correctly
+        assert_eq!(
+            attack_direction_for_round(0),
+            AttackDirection::Above
+        );
+        assert_eq!(
+            attack_direction_for_round(1),
+            AttackDirection::Left
+        );
+        assert_eq!(
+            attack_direction_for_round(2),
+            AttackDirection::Front
+        );
+        
+        // Verify cycle repeats
+        assert_eq!(
+            attack_direction_for_round(3),
+            AttackDirection::Above
+        );
+        assert_eq!(
+            attack_direction_for_round(4),
+            AttackDirection::Left
+        );
+    }
 
-        let loc_0 = determine_hit_location(0);
-        let loc_3 = determine_hit_location(3);
+    #[test]
+    fn test_hit_location_determinism() {
+        // Verify that same round produces same direction (though location may vary)
+        let direction_0a = attack_direction_for_round(0);
+        let direction_0b = attack_direction_for_round(0);
+        assert_eq!(direction_0a, direction_0b);
+    }
 
-        let loc_1 = determine_hit_location(1);
-        let loc_4 = determine_hit_location(4);
+    #[test]
+    fn test_hit_location_validity() {
+        // Test that hit locations are always valid regardless of round
+        for round in 0..10 {
+            let location = determine_hit_location(round);
+            assert!(matches!(
+                location,
+                HitLocation::Head
+                    | HitLocation::Torso
+                    | HitLocation::LeftArm
+                    | HitLocation::RightArm
+                    | HitLocation::LeftLeg
+                    | HitLocation::RightLeg
+            ));
+        }
+    }
 
-        let loc_2 = determine_hit_location(2);
-        let loc_5 = determine_hit_location(5);
-
-        // Verify the pattern repeats every 3 rounds (same direction)
-        // Note: locations may differ due to randomness within each direction,
-        // but at least verify they're valid HitLocations
+    #[test]
+    fn test_wound_severity_conversion() {
         assert!(matches!(
-            loc_0,
-            HitLocation::Head
-                | HitLocation::Torso
-                | HitLocation::LeftArm
-                | HitLocation::RightArm
-                | HitLocation::LeftLeg
-                | HitLocation::RightLeg
+            convert_wound_level_to_severity(WoundLevel::Light),
+            hit_location::WoundSeverity::Light
         ));
-
         assert!(matches!(
-            loc_1,
-            HitLocation::Head
-                | HitLocation::Torso
-                | HitLocation::LeftArm
-                | HitLocation::RightArm
-                | HitLocation::LeftLeg
-                | HitLocation::RightLeg
+            convert_wound_level_to_severity(WoundLevel::Severe),
+            hit_location::WoundSeverity::Severe
         ));
-
         assert!(matches!(
-            loc_2,
-            HitLocation::Head
-                | HitLocation::Torso
-                | HitLocation::LeftArm
-                | HitLocation::RightArm
-                | HitLocation::LeftLeg
-                | HitLocation::RightLeg
+            convert_wound_level_to_severity(WoundLevel::Critical),
+            hit_location::WoundSeverity::Critical
         ));
+    }
 
-        // Ensure we're actually calling determine (not constant)
-        let _ = (loc_3, loc_4, loc_5);
+    #[test]
+    fn test_damage_calculation_with_multipliers() {
+        // Test damage calculation logic in isolation
+        let base_damage = 10;
+        let location_mult = 1.5;
+        let stance_mod = 2;
+        
+        let result = DamageCalculation::calculate_final_damage(
+            base_damage,
+            location_mult,
+            stance_mod,
+        );
+        
+        // (10 * 1.5) as i32 + 2 = 15 + 2 = 17
+        assert_eq!(result, 17);
+    }
+
+    #[test]
+    fn test_damage_calculation_no_multiplier() {
+        let base_damage = 10;
+        let location_mult = 1.0;
+        let stance_mod = 0;
+        
+        let result = DamageCalculation::calculate_final_damage(
+            base_damage,
+            location_mult,
+            stance_mod,
+        );
+        
+        assert_eq!(result, 10);
     }
 }

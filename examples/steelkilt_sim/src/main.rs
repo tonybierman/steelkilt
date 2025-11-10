@@ -9,6 +9,24 @@
 //!
 //! The simulator allows interactive control of combat stances and provides detailed
 //! feedback on combat resolution, wound effects, and character status.
+//!
+//! ## Usage
+//!
+//! Run with interactive character selection:
+//! ```sh
+//! cargo run
+//! ```
+//!
+//! Specify one or both characters by slug:
+//! ```sh
+//! cargo run warrior
+//! cargo run warrior mage
+//! ```
+//!
+//! Run in automatic mode (AI controls both characters):
+//! ```sh
+//! cargo run warrior mage --auto
+//! ```
 
 mod combat;
 mod models;
@@ -16,69 +34,96 @@ mod ui;
 mod engine;
 mod file_ops;
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use engine::*;
-
 use inquire::Select;
-use inquire::error::*;
+use inquire::error::InquireError;
 use file_ops::*;
+use std::error::Error;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(value_name = "VALUE", num_args = 0..=2)]
+    /// Character slugs (0-2 arguments). If not provided, interactive selection will be used.
+    #[arg(value_name = "CHARACTER_SLUG", num_args = 0..=2)]
     slugs: Vec<String>,
 
-    #[arg(long)]
+    /// Enable automatic mode where AI controls both characters
+    #[arg(long, help = "Run combat in automatic mode (no user input required)")]
     auto: bool,
 }
 
-fn get_slug(slug: &str) -> Result<String, InquireError> {
-    if slug == "" {
-        let options = load_available_characters();
-        Select::new("Select a combatant:", options).prompt()
+/// Prompts the user to select a character from available options
+fn get_slug(prompt: &str) -> Result<String, InquireError> {
+    let options = load_available_characters();
+    if options.is_empty() {
+        return Err(InquireError::Custom(
+            "No characters available. Please create character files first.".into()
+        ));
+    }
+    Select::new(prompt, options).prompt()
+}
+
+/// Validates that a character slug exists in the available characters
+fn validate_slug(slug: &str) -> Result<(), String> {
+    let options = load_available_characters();
+    if options.contains(&slug.to_string()) {
+        Ok(())
     } else {
-        Ok(slug.to_string())
+        Err(format!(
+            "'{}' is not a valid character slug. Available characters: {}",
+            slug,
+            options.join(", ")
+        ))
     }
 }
 
-fn main() {
+/// Gets the second character slug, either from arguments or interactive selection
+fn get_second_character(args: &Args) -> Result<String, Box<dyn Error>> {
+    if args.slugs.len() >= 2 {
+        validate_slug(&args.slugs[1])?;
+        Ok(args.slugs[1].clone())
+    } else {
+        Ok(get_slug("Select Second Character")?)
+    }
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
-    match args.slugs.len() {
-        0 => { 
-            run_combat("aldric_the_bold", "grimwald_ironfist", args.auto);
-        },
-        1 => {
-            match get_slug(&args.slugs[0]) {
-                Ok(selection) => {
-                    run_combat(&selection, "grimwald_ironfist", args.auto);
-                }
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        },
-        2 => {
-            run_combat(&args.slugs[0], &args.slugs[1], args.auto);
-        },
-        _ => {}, // won't happen due to num_args = 0..=2
-    }
-}
-    
-fn run_combat(pc_slug: &str, ai_slug: &str, auto: bool) {
-    let pc_choice = load_character_from_file(&pc_slug);
-    match pc_choice {
-        Ok(pc_character) => {
-            println!("{} enters the arena!", pc_character.name);
-            let ai_choice = load_character_from_file(&ai_slug);
-            match ai_choice {
-                Ok(ai_character) => {
-                    println!("{} enters the arena!", ai_character.name);
-                    run_combat_rounds(pc_character, ai_character);
-                }
-                Err(_) => println!("There was an error, please try again"),
-            }
-        }
-        Err(_) => println!("There was an error, please try again"),
-    }
+    // Determine first character
+    let first_slug = if args.slugs.is_empty() {
+        get_slug("Select First Character")?
+    } else {
+        validate_slug(&args.slugs[0])?;
+        args.slugs[0].clone()
+    };
+
+    // Determine second character
+    let second_slug = get_second_character(&args)?;
+
+    // Run the combat simulation
+    run_combat(&first_slug, &second_slug, args.auto)?;
+
+    Ok(())
 }
 
+/// Loads characters and initiates combat
+fn run_combat(pc_slug: &str, ai_slug: &str, auto: bool) -> Result<(), Box<dyn Error>> {
+    // Load first character
+    let pc_character = load_character_from_file(pc_slug)
+        .map_err(|e| format!("Failed to load character '{}': {}", pc_slug, e))?;
+    
+    println!("{} enters the arena!", pc_character.name);
+    
+    // Load second character
+    let ai_character = load_character_from_file(ai_slug)
+        .map_err(|e| format!("Failed to load character '{}': {}", ai_slug, e))?;
+    
+    println!("{} enters the arena!", ai_character.name);
+    
+    // Start combat
+    run_combat_rounds(pc_character, ai_character);
+    
+    Ok(())
+}

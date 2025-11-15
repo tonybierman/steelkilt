@@ -9,14 +9,14 @@ use steelkilt::modules::*;
 use steelkilt::*;
 
 /// Encapsulates all combat state for a single fighter
-pub struct CombatantModel {
+pub struct Combatant {
     pub character: Character,
     pub stance: CombatStance,
     pub exhaustion: Exhaustion,
     pub locations: Vec<LocationalDamage>,
 }
 
-impl CombatantModel {
+impl Combatant {
     /// Create a new fighter state from character and skills
     pub fn new(character: Character) -> Self {
         let stamina = character.attributes.stamina();
@@ -92,15 +92,15 @@ impl CombatantModel {
 }
 
 /// Manages the overall combat simulation state
-pub struct MeleeModel {
-    pub combatant1: CombatantModel,
-    pub combatant2: CombatantModel,
+pub struct Melee {
+    pub combatant1: Combatant,
+    pub combatant2: Combatant,
     pub round: usize,
 }
 
-impl MeleeModel {
+impl Melee {
     /// Create new combat state with two fighters
-    pub fn new(c1: CombatantModel, c2: CombatantModel) -> Self {
+    pub fn new(c1: Combatant, c2: Combatant) -> Self {
         Self {
             combatant1: c1,
             combatant2: c2,

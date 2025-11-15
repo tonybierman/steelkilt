@@ -61,7 +61,7 @@ pub fn print_combatants(characters: Vec<&Character>, skills: Vec<&SkillSet>, exh
 
 /// Print round-by-round status summary
 // pub fn print_round_status(characters: Vec<&Character>, exhaustions: Vec<&Exhaustion>, locations: Vec<&Vec<LocationalDamage>>){
-pub fn print_round_status(combatants: Vec<&CombatantModel>){
+pub fn print_round_status(combatants: Vec<&Combatant>){
     let mut table = Table::new();
     table.set_header(vec!["Name", "Light", "Severe", "Critical", "Exhaustion", "Disabled"]);
     
@@ -82,7 +82,7 @@ pub fn print_round_status(combatants: Vec<&CombatantModel>){
 
 /// Print final post-combat status with detailed wound and location information
 pub fn print_final_status(
-    combatant: &CombatantModel,
+    combatant: &Combatant,
 ) {
     println!(
         "{}: {}",

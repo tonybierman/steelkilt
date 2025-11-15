@@ -11,7 +11,7 @@
 //! and the core steelkilt combat library, handling application-specific logic like
 //! stance modifiers, exhaustion, and locational damage tracking.
 use text_colorizer::*;
-use crate::models::CombatantModel;
+use crate::models::Combatant;
 use steelkilt::modules::*;
 use steelkilt::*;
 
@@ -67,8 +67,8 @@ pub fn determine_hit_location(round: usize) -> HitLocation {
 /// - Modifies both attacker and defender state
 /// - Prints combat log messages to stdout
 pub fn perform_attack(
-    attacker: &mut CombatantModel,
-    defender: &mut CombatantModel,
+    attacker: &mut Combatant,
+    defender: &mut Combatant,
     round: usize,
 ) {
     let attack_context = AttackContext::new(attacker, defender, round);
@@ -98,7 +98,7 @@ struct AttackContext {
 }
 
 impl AttackContext {
-    fn new(attacker: &CombatantModel, defender: &CombatantModel, round: usize) -> Self {
+    fn new(attacker: &Combatant, defender: &Combatant, round: usize) -> Self {
         Self {
             hit_location: determine_hit_location(round),
             attacker_name: attacker.character.name.clone(),
@@ -123,8 +123,8 @@ impl AttackContext {
 
 /// Execute the core attack roll using the steelkilt library
 fn execute_attack_roll(
-    attacker: &mut CombatantModel,
-    defender: &mut CombatantModel,
+    attacker: &mut Combatant,
+    defender: &mut Combatant,
 ) -> CombatResult {
     combat_round(
         &mut attacker.character,
@@ -149,8 +149,8 @@ fn attack_direction_for_round(round: usize) -> AttackDirection {
 
 /// Process a successful hit with damage calculation and wound application
 fn handle_successful_hit(
-    attacker: &CombatantModel,
-    defender: &mut CombatantModel,
+    attacker: &Combatant,
+    defender: &mut Combatant,
     result: &CombatResult,
     hit_location: HitLocation,
 ) {
@@ -174,7 +174,7 @@ struct DamageCalculation {
 }
 
 impl DamageCalculation {
-    fn new(attacker: &CombatantModel, result: &CombatResult, location: HitLocation) -> Self {
+    fn new(attacker: &Combatant, result: &CombatResult, location: HitLocation) -> Self {
         let stance_modifier = attacker.stance_damage_modifier();
         let location_multiplier = location.damage_multiplier();
         let final_damage = Self::calculate_final_damage(
@@ -219,7 +219,7 @@ impl DamageCalculation {
 
 /// Apply wound to location and handle any special effects (disabling, weapon drops, etc.)
 fn apply_wound_with_effects(
-    defender: &mut CombatantModel,
+    defender: &mut Combatant,
     wound_level: WoundLevel,
     location: HitLocation,
 ) {
@@ -244,7 +244,7 @@ fn convert_wound_level_to_severity(wound: WoundLevel) -> hit_location::WoundSeve
 }
 
 /// Handle effects when a body location becomes disabled
-fn handle_location_disabled(defender: &mut CombatantModel, location: HitLocation) {
+fn handle_location_disabled(defender: &mut Combatant, location: HitLocation) {
     println!("  → {} is {}", location.to_string().red(), "DISABLED!".red());
 
     if location.causes_weapon_drop() {

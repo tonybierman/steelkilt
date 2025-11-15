@@ -54,7 +54,7 @@ pub fn run_combat_rounds(character1: Character, character2: Character, is_auto: 
 
 /// Main combat engine that orchestrates the combat encounter
 struct CombatEngine {
-    combat: MeleeModel,
+    combat: Melee,
     is_auto: bool,
 }
 
@@ -63,13 +63,13 @@ impl CombatEngine {
     fn new(character1: Character, character2: Character, is_auto: bool) -> Self {
         print_combat_header();
 
-        let combatant1 = CombatantModel::new(character1);
-        let combatant2 = CombatantModel::new(character2);
+        let combatant1 = Combatant::new(character1);
+        let combatant2 = Combatant::new(character2);
 
         print_section_divider("COMBAT BEGINS!");
 
         Self {
-            combat: MeleeModel::new(combatant1, combatant2),
+            combat: Melee::new(combatant1, combatant2),
             is_auto,
         }
     }
@@ -182,7 +182,7 @@ impl CombatEngine {
     }
 
     /// Get immutable reference to a combatant
-    fn get_combatant(&self, id: CombatantId) -> &CombatantModel {
+    fn get_combatant(&self, id: CombatantId) -> &Combatant {
         match id {
             CombatantId::First => &self.combat.combatant1,
             CombatantId::Second => &self.combat.combatant2,
@@ -190,7 +190,7 @@ impl CombatEngine {
     }
 
     /// Get mutable reference to a combatant
-    fn get_combatant_mut(&mut self, id: CombatantId) -> &mut CombatantModel {
+    fn get_combatant_mut(&mut self, id: CombatantId) -> &mut Combatant {
         match id {
             CombatantId::First => &mut self.combat.combatant1,
             CombatantId::Second => &mut self.combat.combatant2,
